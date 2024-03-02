@@ -8,3 +8,9 @@ Process:
 * Define mortgage bond and mortgage cash flows (cash flows, prepayment speeds, weighted average life)
 * Price the bond with Z-spread and J-spread
 
+```math
+N = \frac{C}{2} * \frac{N}{1+S}
+```
+
+
+
