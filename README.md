@@ -3,13 +3,9 @@
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
 # Objectives
-Process:
-* Obtain US Treasury par yield data (the assumption of bonds pricing at par is important for calcuations)
-* Interpolate yield data using linear or spline-fitting methods
-* Derive a zero-coupon curve from CMT data
-* Define mortgage bond and mortgage cash flows (cash flows, prepayment speeds, weighted average life)
-* Price the bond with Z-spread and J-spread
-
+Use 'real' Treasury data to calculate zero-coupon rates over a time span of data. 
+Create an engine for generating mortgage and corporate bond cash flows with various prepayment assumptions.
+Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
 # Mathematical Derivation for Zero Coupon Yields
 
