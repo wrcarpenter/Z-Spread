@@ -71,32 +71,26 @@ for row in range(0,1):   # spots.shape[0]
         
         for i in range(2, col): # now solve for intermediate cash flows
         
-        '''
-        Start loop at index 2 which corresponds to 6month period for the 
-        first intermediate cash flow. 
         
-        '''
+        # Start loop at index 2 which corresponds to 6month period for the 
+        #  first intermediate cash flow. 
             
             zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i))
             int_cf = int_cf +cpn/100*delta*face*zcb
-            
-            if col<10:
-                print(int_cf)
         
         if col<10:
             print("Coupon: ", cpn, "Column: ", col, "Cash Flow: ", int_cf)
+            print(" ")
         
-        # zero = face - zcb      
-    
-            # int_cf = int_cf + cpn*delta*face/((1+spots.iloc[row, i]*delta)^(i))
-        
-        # zero_rate =     
-        
-        # go from col zero to col-1 and sum up cashflows 
-        # the intermediate coupon sum should be able to get retained/added to easily 
-        
-##%%
+        zero = (((face*cpn/100*delta)/(face - inter_cf)**(1/col)-1)/delta  # algebra to solve for zero rate
+        # add solved zero rate into the array
+        # print(zero)
 
+# now create a fully interpolated zero rate table for ease of usage 
+# use spline interpolation again here
+    
+    
+##%%
 # Create a bond cash-flow - start with a mortgage that pays principal/interest assuming 30/360 convention 
 
 
