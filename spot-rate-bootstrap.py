@@ -1,7 +1,6 @@
 """
 Bootstrap Spot Rate Curve
 W Carpenter
-
 """
 import numpy as np
 import pandas as pd
@@ -12,7 +11,6 @@ from scipy.interpolate import CubicSpline
 
 #%%
 # Read in par-yield data
-
 tsy  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
 head = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-spot-header.csv")
 cols = list(head.columns.values)
@@ -35,15 +33,19 @@ for i in range(len(tsy)):
     
     add  = np.append(date, interp)
     ylds = np.vstack((ylds, add))
+
     
-ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)   # completed yields array 
+ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)   # completed yields array
+
+ylds.to_clipboard()
+spots.to_clipboard()
 
 #%%
- 
-spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]), dtype=float), columns=cols)
 
-# assign same colums 
+# rows, cols 
+spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]-1), dtype=float), columns=cols)
 
+# assign same columns 
 # A portion of the par-yield curve already contains spot rates because bonds 1-year and under do 
 # not pay an intermediate coupon 
 
@@ -55,15 +57,45 @@ spots['12']   = tsy['12']
 
 print(spots.iloc[0,0])
 
+face   = 100
+delta  = 1/2 
 # Bootstrap methodology - create semi-annual
-
-for row in range(0,spots.shape[0]):
-    for col in range(4, spots.shape[1]-1):
-        print(spots.iloc[col, row])
+for row in range(0,1):   # spots.shape[0]
+    for col in range(0, spots.shape[1]):
         
+        if col <= 3: continue # spot rates already defined 
+        
+        # Now solving for zero-coupon bond yield
+        int_cf = 0 
+        cpn    = ylds.iloc[row, col]  # this is the interpolated coupon in question
+        
+        for i in range(2, col): # now solve for intermediate cash flows
+        
+        '''
+        Start loop at index 2 which corresponds to 6month period for the 
+        first intermediate cash flow. 
+        
+        '''
+            
+            zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i))
+            int_cf = int_cf +cpn/100*delta*face*zcb
+            
+            if col<10:
+                print(int_cf)
+        
+        if col<10:
+            print("Coupon: ", cpn, "Column: ", col, "Cash Flow: ", int_cf)
+        
+        # zero = face - zcb      
     
-
-#%%
+            # int_cf = int_cf + cpn*delta*face/((1+spots.iloc[row, i]*delta)^(i))
+        
+        # zero_rate =     
+        
+        # go from col zero to col-1 and sum up cashflows 
+        # the intermediate coupon sum should be able to get retained/added to easily 
+        
+##%%
 
 # Create a bond cash-flow - start with a mortgage that pays principal/interest assuming 30/360 convention 
 
