@@ -37,13 +37,13 @@ for i in range(len(tsy)):
     
 ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)   # completed yields array
 
-ylds.to_clipboard()
-spots.to_clipboard()
+# ylds.to_clipboard()
+# spots.to_clipboard()
 
 #%%
 
 # rows, cols 
-spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]-1), dtype=float), columns=cols)
+spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]), dtype=float), columns=cols)
 
 # assign same columns 
 # A portion of the par-yield curve already contains spot rates because bonds 1-year and under do 
@@ -75,14 +75,20 @@ for row in range(0,1):   # spots.shape[0]
         # Start loop at index 2 which corresponds to 6month period for the 
         #  first intermediate cash flow. 
             
-            zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i))
+            zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i-1))
             int_cf = int_cf +cpn/100*delta*face*zcb
         
         if col<10:
             print("Coupon: ", cpn, "Column: ", col, "Cash Flow: ", int_cf)
             print(" ")
         
-        zero = (((face*cpn/100*delta)/(face - inter_cf)**(1/col)-1)/delta  # algebra to solve for zero rate
+        zero = ((face + face*cpn/100*delta)/(face - int_cf)) # algebra to solve for zero rate
+        zero = (zero**(1/(col-1))-1)*2
+        
+        spots.iloc[row, col] = zero
+        
+        if col<10:
+            print(zero)
         # add solved zero rate into the array
         # print(zero)
 
