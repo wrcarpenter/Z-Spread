@@ -4,7 +4,9 @@ Z-spread assumes zero volatility in cash flows and interest rates - it is consid
 
 # Objectives
 Use 'real' Treasury data to calculate zero-coupon rates over a time span of data. 
+
 Create an engine for generating mortgage and corporate bond cash flows with various prepayment assumptions.
+
 Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
 # Mathematical Derivation for Zero Coupon Yields
