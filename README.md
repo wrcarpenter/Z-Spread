@@ -10,14 +10,17 @@ Process:
 * Define mortgage bond and mortgage cash flows (cash flows, prepayment speeds, weighted average life)
 * Price the bond with Z-spread and J-spread
 
-```
+
 # Mathematical Derivation for Zero Coupon Yields
 
 ```math
 N = \frac{C}{2} * \frac{N}{1+S}
 ```
+
 ```math
 P_{Bond} = \frac{CF_{1}}{(1+R_1 + Z)^n_1} + \frac{CF_{2}}{(1+R_2 + Z)^n_2} + ... \frac{CF_{i}}{(1+R_i + Z)^n_i}
+```
+
 
 # Procedure
 
