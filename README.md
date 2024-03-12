@@ -23,6 +23,12 @@ P_{Bond} = \frac{CF_{1}}{(1+R_1 + Z)^n_1} + \frac{CF_{2}}{(1+R_2 + Z)^n_2} + ...
 
 
 # Procedure
+This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
+
+## Obtain Par-Yield Data
+## Interpolate Semi-Annual Par-Yield Rates
+## Bootstrap Semi-Annual Zero Coupon Rates
+## Interpolate 
 
 # Data Sources
 
