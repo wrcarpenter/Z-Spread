@@ -16,7 +16,6 @@ head = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/
 cols = list(head.columns.values)
 
 #%%
-
 # Generate interpolated yields data
 ylds   = np.empty([1,62])
 months = np.array([1,2,3,5,6,12,24,36,60,84,120,240,360])
@@ -33,21 +32,14 @@ for i in range(len(tsy)):
     
     add  = np.append(date, interp)
     ylds = np.vstack((ylds, add))
-
     
 ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)   # completed yields array
 
-# ylds.to_clipboard()
-# spots.to_clipboard()
-
 #%%
-
 # rows, cols 
 spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]), dtype=float), columns=cols)
-
-# assign same columns 
-# A portion of the par-yield curve already contains spot rates because bonds 1-year and under do 
-# not pay an intermediate coupon 
+ 
+# A portion of the par-yield curve already contains spot rates because bonds 1-year are zcb
 
 # No interpolation required here - shorter-term treasuries are ZCBs
 spots['Date'] = tsy['Date']
@@ -55,54 +47,46 @@ spots['0']    = tsy['1']
 spots['6']    = tsy['6']
 spots['12']   = tsy['12']
 
-print(spots.iloc[0,0])
-
+# Bond assumptions, do not need to be modified
 face   = 100
 delta  = 1/2 
+
 # Bootstrap methodology - create semi-annual
-for row in range(0,1):   # spots.shape[0]
+for row in range(0,spots.shape[0]):  
     for col in range(0, spots.shape[1]):
         
         if col <= 3: continue # spot rates already defined 
         
         # Now solving for zero-coupon bond yield
         int_cf = 0 
-        cpn    = ylds.iloc[row, col]  # this is the interpolated coupon in question
+        cpn    = ylds.iloc[row, col]  # interpolated coupon for par bond
         
         for i in range(2, col): # now solve for intermediate cash flows
-        
-        
-        # Start loop at index 2 which corresponds to 6month period for the 
-        #  first intermediate cash flow. 
-            
+                    
             zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i-1))
             int_cf = int_cf +cpn/100*delta*face*zcb
-        
-        if col<10:
-            print("Coupon: ", cpn, "Column: ", col, "Cash Flow: ", int_cf)
-            print(" ")
-        
+                
         zero = ((face + face*cpn/100*delta)/(face - int_cf)) # algebra to solve for zero rate
-        zero = (zero**(1/(col-1))-1)*2
+        zero = zero**(1/(col-1))
+        zero = (zero-1)*2
         
-        spots.iloc[row, col] = zero
-        
-        if col<10:
-            print(zero)
-        # add solved zero rate into the array
-        # print(zero)
+        spots.iloc[row, col] = zero*100
 
 # now create a fully interpolated zero rate table for ease of usage 
 # use spline interpolation again here
-    
-    
-##%%
-# Create a bond cash-flow - start with a mortgage that pays principal/interest assuming 30/360 convention 
-
-
-
-
-
-
 
 #%% 
+
+
+
+
+
+# Plotting 
+
+# add ZCB prices 
+# add a curve 
+# add curve overtime 
+
+
+
+
