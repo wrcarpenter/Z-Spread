@@ -75,18 +75,40 @@ for row in range(0,spots.shape[0]):
 # now create a fully interpolated zero rate table for ease of usage 
 # use spline interpolation again here
 
+spots.to_csv('C:/Users/wcarp/OneDrive/Desktop/Fixed Income/Data/spot-rates-semiannual')
+
 #%% 
+# Converting semi-annual spots to monthly using spline interpolation
+spots_monthly = np.empty([1,361])
+months        = np.array(spots.columns.to_list())
+months        = months[1:]
+x             = np.linspace(1,360,360)
+
+for i in range(len(spots)):
+    
+    row   = np.array(spots.loc[i])
+    date  = row[0:1]
+    rates = row[1:]
+    
+    f = CubicSpline(months, rates)
+    interp = f(x)
+    
+    add = np.append(date, interp)
+    spots_monthly = np.vstack((spots_monthly, add))
+
+spots_monthly.to_clipboard()
+
+spots_monthly = pd.DataFrame(np.delete(ylds, 0, 0), columns=)    
+    
+    
+
+
 
 
 
 
 
 # Plotting 
-
 # add ZCB prices 
 # add a curve 
 # add curve overtime 
-
-
-
-
