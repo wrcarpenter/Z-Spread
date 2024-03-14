@@ -9,15 +9,28 @@ Create an engine for generating mortgage and corporate bond cash flows with vari
 
 Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
-# Mathematical Derivation for Zero Coupon Yields
+# Mathematical Derivation for Zero Coupon Rates
+
+The data provided by the U.S. Treasury gives the yields of bonds at various maturies for a 'par' dollar price. In practice, traders would quote this price as "100-00" and it translates to a 100.00 dollar. The general formula for pricing a par price bond that matures in $n$ periods can written as the following:
 
 ```math
-N = \frac{C}{2} * \frac{N}{1+S}
+P = \frac{\frac{C}{\Delta}*F}{(1+\frac{r_1}{\Delta})^{n_1}} + \frac{\frac{C}{\Delta}*F}{(1+\frac{r_2}{\Delta})^{n_2}} + \frac{\frac{C}{\Delta}*F}{(1+\frac{r_3}{\Delta})^{n_3}} + ... +  \frac{F + \frac{C}{\Delta}*F}{(1+\frac{r_n}{\Delta})^{n_n}}
 ```
+Where we define:
 
-```math
-P_{Bond} = \frac{CF_{1}}{(1+R_1 + Z)^n_1} + \frac{CF_{2}}{(1+R_2 + Z)^n_2} + ... \frac{CF_{i}}{(1+R_i + Z)^n_i}
-```
+$P$ -> Price of the bond (assumed to be par or 100.00 given the Treasury rates data)
+
+$C$ -> Annualized coupon of the bond
+
+$\Delta$ -> Compounding period (ex: semiannual bond payments would imply a $\Delta$ of 2)
+
+$F$ -> Face value of the bond (assumed to be 100)
+
+This equation above can be more elegantly written as:
+
+
+
+
 
 
 # Procedure
