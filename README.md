@@ -14,7 +14,7 @@ Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 The data provided by the U.S. Treasury gives the yields of bonds at various maturies for a 'par' dollar price. In practice, traders would quote this price as "100-00" and it translates to a 100.00 dollar. The general formula for pricing a par price bond that matures in $n$ periods can written as the following:
 
 ```math
-P = \frac{\frac{C}{\Delta}*F}{(1+\frac{r_1}{\Delta})^{n_1}} + \frac{\frac{C}{\Delta}*F}{(1+\frac{r_2}{\Delta})^{n_2}} + \frac{\frac{C}{\Delta}*F}{(1+\frac{r_3}{\Delta})^{n_3}} + ... +  \frac{F + \frac{C}{\Delta}*F}{(1+\frac{r_n}{\Delta})^{n_n}}
+P = \frac{\frac{C}{\Delta}*F}{(1+\frac{r_1}{\Delta})^{1}} + \frac{\frac{C}{\Delta}*F}{(1+\frac{r_2}{\Delta})^{2}} + \frac{\frac{C}{\Delta}*F}{(1+\frac{r_3}{\Delta})^{3}} + ... +  \frac{F + \frac{C}{\Delta}*F}{(1+\frac{r_n}{\Delta})^{n}}
 ```
 Where we define:
 
@@ -26,7 +26,14 @@ $\Delta$ -> Compounding period (ex: semiannual bond payments would imply a $\Del
 
 $F$ -> Face value of the bond (assumed to be 100)
 
+$n$ -> number of periods 
+
 This equation above can be more elegantly written as:
+
+```math
+P = \sum_{i=1}^{n-1}\frac{\frac{C}{\Delta}*F}{(1+\frac{r_i}{\Delta})^{i}} +  \frac{F + \frac{C}{\Delta}*F}{(1+\frac{r_n}{\Delta})^{n}}
+```
+
 
 
 
