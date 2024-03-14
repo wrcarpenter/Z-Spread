@@ -14,7 +14,15 @@ Create an engine for generating mortgage and corporate bond cash flows with vari
 
 Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
-# Mathematical Derivation for Zero Coupon Rates
+# Procedure
+This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
+
+## Obtain Par-Yield Data
+## Interpolate Semi-Annual Par-Yield Rates
+## Bootstrap Semi-Annual Zero Coupon Rates
+## Interpolate 
+
+# Mathematical derivation for calculating Zero Coupon Rates
 
 ## Treasury Bond Cash Flow Pricing
 
@@ -42,24 +50,10 @@ P = \sum_{i=1}^{n-1}\frac{\frac{C}{\Delta}*F}{(1+\frac{r_i}{\Delta})^{i}} +  \fr
 ```
 This equation is quintessential example of discounted cashflow pricing, which is the foundation for the bond market and illustrates the concept of 'present value.' Diving into the cashflows first, one can see thatin each period before the bond matures at time $n$ a bond holder would receive an intermediate interest payment of $\frac{C}{\Delta}*F$ which adjusts the coupon if the payments are not necessarily annual. In the case of Treasury bonds, 
 
-
-
-
-
-
-# Procedure
-This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
-
-## Obtain Par-Yield Data
-## Interpolate Semi-Annual Par-Yield Rates
-## Bootstrap Semi-Annual Zero Coupon Rates
-## Interpolate 
-
 # Data Sources
 
 US Treasury Par Yield Rates.
 
-# References
 
 
 
