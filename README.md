@@ -1,4 +1,9 @@
+
+
 # Z-Spread 
+
+> Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it. - Albert Einstein
+
 
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
