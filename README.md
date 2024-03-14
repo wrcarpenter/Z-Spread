@@ -11,7 +11,7 @@ Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
 # Mathematical Derivation for Zero Coupon Rates
 
-## Treasury Bond Cash Flow
+## Treasury Bond Cash Flow Pricing
 
 The data provided by the U.S. Treasury gives the yields of bonds at various maturies for a 'par' dollar price. In practice, traders would quote this price as "100-00" and it translates to a 100.00 dollar. The general formula for pricing a par price bond that matures in $n$ periods can written as the following:
 
@@ -35,7 +35,7 @@ This equation above can be more elegantly written as:
 ```math
 P = \sum_{i=1}^{n-1}\frac{\frac{C}{\Delta}*F}{(1+\frac{r_i}{\Delta})^{i}} +  \frac{F + \frac{C}{\Delta}*F}{(1+\frac{r_n}{\Delta})^{n}}
 ```
-This equation is quintessential example of discounted cashflow pricing, which is the foundation for the bond market and illustrates the concept of 'present value.'
+This equation is quintessential example of discounted cashflow pricing, which is the foundation for the bond market and illustrates the concept of 'present value.' Diving into the cashflows first, one can see thatin each period before the bond matures at time $n$ a bond holder would receive an intermediate interest payment.
 
 
 
