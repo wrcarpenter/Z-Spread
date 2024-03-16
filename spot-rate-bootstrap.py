@@ -8,12 +8,14 @@ import os
 import matplotlib.pyplot as plt
 from scipy import interpolate
 from scipy.interpolate import CubicSpline
+from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator
 
 #%%
 # Read in par-yield data
 tsy  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
 head = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-spot-header.csv")
 
+# Define columns 
 tsy_cols = list(tsy.columns.values)
 cols = list(head.columns.values)
 
@@ -105,24 +107,35 @@ spots_monthly = pd.DataFrame(np.delete(ylds, 0, 0), columns=)
 #%% Plotting 
 
 # Plot treasury points
-x1 = np.array(tsy_cols[1:])
-y1 = np.array(tsy.loc[1])
-y1 = r[1:]
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.set_xlabel('Months', fontsize="large")
-ax.set_ylabel('Yield (%)', fontsize="large")
-ax.set_title('Treasury Par Yield Rates 3/8/24')
-plt.scatter(x1,y1) 
+def tsy_rate_plot():
+    
+    x1 = np.array(tsy_cols[5:])
+    x1 = x1.astype(float)
+    y1 = np.array(tsy.loc[1])
+    y1 = r[5:]
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.set_xlabel('Months', fontsize="large")
+    ax.set_xticks(x1)
+    ax.set_ylabel('Yield (%)', fontsize="large")
+    ax.set_title('Treasury Par Yield Rates 3/8/24')
+    plt.xticks(fontsize=8)
+    plt.scatter(x1,y1)            
 
-x2 = np.array(list(ylds.columns.values))
-x2 = x1[2:]
-y2 = np.array(ylds.loc[1])
-y2 = y1[2:]
-fig, ax = plt.subplots(figsize=(10, 6))
-ax.set_xlabel('Months', fontsize="large")
-ax.set_ylabel('Yield (%)', fontsize="large")
-ax.set_title('Treasury Par Yield Rates 3/8/24') 
-plt.scatter(x2,y2)
+
+plt = treasury_rate_plot()
+
+def interp_tsy_yld_plot():            
+    
+    x2 = np.array(list(ylds.columns.values))
+    x2 = x2[2:]
+    y2 = np.array(ylds.loc[1])
+    y2 = y2[2:]
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    ax2.set_xlabel('Months', fontsize="large")
+    ax2.set_xticks((x1)
+    ax2.set_ylabel('Yield (%)', fontsize="large")
+    ax2.set_title('Treasury Par Yield Rates 3/8/24')
+    plt.scatter(x2,y2)
 
 # ax.plot(x1, y1)
 # ax.set_title('Title with loc at '+loc, loc=loc)
