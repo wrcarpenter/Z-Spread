@@ -13,6 +13,8 @@ from scipy.interpolate import CubicSpline
 # Read in par-yield data
 tsy  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
 head = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-spot-header.csv")
+
+tsy_cols = list(tsy.columns.values)
 cols = list(head.columns.values)
 
 #%%
@@ -103,12 +105,28 @@ spots_monthly = pd.DataFrame(np.delete(ylds, 0, 0), columns=)
     
 
 
+#%% Plotting 
+
+# Plot treasury points
+
+x = np.array(tsy_cols[1:])
+r = np.array(tsy.loc[1])
+y = r[1:]
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xlabel('Months', fontsize="large")
+ax.set_ylabel('Yield (%)', fontsize="large")
+ax.set_title('Treasury Par Yield Rates 3/8/24')
+
+plt.scatter(x,y) 
+
+# ax.plot(x1, y1)
+
+# ax.set_title('Title with loc at '+loc, loc=loc)
 
 
+# plot interpolated treasury points 
 
 
-
-# Plotting 
 # add ZCB prices 
 # add a curve 
 # add curve overtime 
