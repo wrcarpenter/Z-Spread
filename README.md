@@ -20,13 +20,15 @@ This procedure follows the general methodology for how fixed income analytics pr
 
 
 ## Obtain Par-Yield Data
-To calculate a Z-spread, it is necessary to first source Treasury rate data to construct a spot rate curve from. 
+To calculate a Z-spread, it is necessary to first source Treasury rate data to construct a spot rate curve from. This raw data can is publically available online here. 
+
+Below is a 3D surface plot of the Treasury data illustrating how the level of rates and shape of the curve each day can flucuate significantly:
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Treasury-Rates-Surface.png)
 
 ## Interpolate Semi-Annual Par-Yield Rates
 
-Image for interpolation below. 
+Given usable rates data, the first step is now to create a interpolated series with semi-annual increments. Practicioners can choose between various spline methods but the two most popular are linear or spline. This project chooses to employ spline interpolation. 
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Interpolated-Treasury-Curve.png)
 
