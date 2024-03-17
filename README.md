@@ -33,7 +33,9 @@ Image for interpolation.
 ## Bootstrap Semi-Annual Zero Coupon Rates
 ## Interpolate 
 
-# Mathematical derivation for calculating Zero Coupon Rates
+# Mathematics for Bootstrapping Zero Coupon Rates
+
+The following sections cover the mathematics behind Tresaury bond pricing and how to utlize market data to boostrap a spot rate curve. These calculations are all implemented in the code for this project.
 
 ## Treasury Bond Pricing
 
