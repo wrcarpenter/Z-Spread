@@ -80,7 +80,7 @@ for row in range(0,spots.shape[0]):
         
         spots.iloc[row, col] = zero*100
 
-
+#%%
 # update/replace file 
 spots.to_csv('C:/Users/wcarp/OneDrive/Desktop/Z-Spread/Data')
 
@@ -104,10 +104,8 @@ for i in range(len(spots)):
     add = np.append(date, interp)
     spots_monthly = np.vstack((spots_monthly, add))
 
-spots_monthly.to_clipboard()
-
 spots_monthly = pd.DataFrame(np.delete(ylds, 0, 0))        
-
+spots_monthly.to_clipboard()
 #%% Plotting (creating custom project plots)
 
 # Plot treasury points
@@ -152,7 +150,7 @@ def interp_tsy_yld_plot():
     y3 = y3[5:]
     
     # Create plot/axis with sizing
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(11, 5))
     
     # Define axis markers and sizes
     ax.set_xticks(x1)
@@ -175,16 +173,52 @@ def interp_tsy_yld_plot():
     
 def spot_rate_curve():
     
+    x1 = np.array(tsy_cols[5:])
+    x1 = x1.astype(float)
+    x2 = np.array(list(ylds.columns.values))
+    x2 = x2[2:].astype(float)
+    y2 = np.array(ylds.loc[1])
+    y2 = y2[2:]
     
+    y3 = np.array(spots.loc[1])
+    y3 = y3[2:]
+    
+    fig, ax = plt.subplots(figsize=(11, 5))
+    
+    ax.set_xticks(x1)
+    ax.set_yticks(np.arange(4.0, 6.0, 0.5))
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    
+    # Axis labels
+    ax.set_xlabel('Months', fontsize="large")
+    ax.set_ylabel('Yield (%)', fontsize="large")
+    ax.set_title('Spot and Yield Rates 3/8/24')
+    
+    # Scatter plots
+    plt.scatter(x2,y2, label="Spline Interpolated Par Yields")
+    plt.scatter(x2,y3, color="darkblue", label='Spot Rates')
+    
+    # Line plots
+    plt.plot(x2, y2)
+    plt.plot(x2, y3, color="darkblue")
+    
+    # Adding legend
+    plt.legend(loc='upper right', fontsize='large')
+    
+#def z_spread_visual():
+    # use the arrow function in matplotlib 
+        
     
 
 
 #%%
 # Generate plots 
-tsy_plot = tsy_rate_plot()
-tsy_plot2 = interp_tsy_yld_plot()
+plot = tsy_rate_plot()
+plot2 = interp_tsy_yld_plot()
 
 #%%
+plot3 = spot_rate_curve()
 
 
 
