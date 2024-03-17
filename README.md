@@ -4,6 +4,7 @@
 
 > Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it. - Albert Einstein
 
+In fixed income markets, a security will have a future cash flow that can be discounted and given a yield by an investor.
 
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
