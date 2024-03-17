@@ -23,7 +23,7 @@ To calculate a Z-spread, it is necessary to first source Treasury rate data to c
 
 ## Interpolate Semi-Annual Par-Yield Rates
 
-Image for interpolation.
+Image for interpolation below. 
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Interpolated-Treasury-Curve.png)
 
@@ -31,7 +31,18 @@ Image for interpolation.
 
 
 ## Bootstrap Semi-Annual Zero Coupon Rates
-## Interpolate 
+
+
+![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Spot-Curve.png)
+
+## Generate a cash flow 
+
+## Calculate Z-Spread Given a Price
+
+## Calcuate Price Given a Z-Spread
+ 
+
+
 
 # Mathematics for Bootstrapping Zero Coupon Rates
 
