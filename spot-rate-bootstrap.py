@@ -173,6 +173,9 @@ def interp_tsy_yld_plot():
     # Add legend
     plt.legend(loc='upper right', fontsize='large')
     
+def spot_rate_curve():
+    
+    
     
 
 
