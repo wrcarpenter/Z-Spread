@@ -18,8 +18,11 @@ Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 # Procedure
 This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
 
+
 ## Obtain Par-Yield Data
 To calculate a Z-spread, it is necessary to first source Treasury rate data to construct a spot rate curve from. 
+
+![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Treasury-Rates-Surface.png)
 
 ## Interpolate Semi-Annual Par-Yield Rates
 
@@ -27,11 +30,7 @@ Image for interpolation below.
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Interpolated-Treasury-Curve.png)
 
-
-
-
 ## Bootstrap Semi-Annual Zero Coupon Rates
-
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Spot-Curve.png)
 
@@ -43,12 +42,9 @@ Image for interpolation below.
  
 
 
-
 # Mathematics for Bootstrapping Zero Coupon Rates
 
 The following sections cover the mathematics behind Tresaury bond pricing and how to utlize market data to boostrap a spot rate curve. These calculations are all implemented in the code for this project.
-
-## Treasury Bond Pricing
 
 The data provided by the U.S. Treasury gives the yields of bonds at various maturies for a 'par' dollar price. In practice, traders would quote this price as "100-00" and it translates to a 100.00 dollar. The general formula for pricing a par price bond that matures in $n$ periods can written as the following:
 
