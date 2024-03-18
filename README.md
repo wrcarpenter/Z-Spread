@@ -1,50 +1,51 @@
 
 
 # Z-Spread 
-
 > Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it. - Albert Einstein
+
+## Introduction
+
+![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/zspread-illustration.png)
 
 In fixed income markets, a security will have a future cash flow that can be discounted and given a yield by an investor.
 
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
-# Objectives
+## Objectives
 - Use 'real' Treasury data to calculate zero-coupon rates over a time span of data. 
 
 - Create an engine for generating mortgage and corporate bond cash flows with various prepayment assumptions.
 
 - Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
-# Procedure
+## Procedure
 This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
 
 
-## Obtain Par-Yield Data
+### Obtain Par-Yield Data
 To calculate a Z-spread, it is necessary to first source Treasury rate data to construct a spot rate curve from. This raw data can is publically available online here. 
 
 Below is a 3D surface plot of the Treasury data illustrating how the level of rates and shape of the curve each day can flucuate significantly:
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Treasury-Rates-Surface.png)
 
-## Interpolate Semi-Annual Par-Yield Rates
+### Interpolate Semi-Annual Par-Yield Rates
 
 Given usable rates data, the first step is now to create a interpolated series with semi-annual increments. Practicioners can choose between various spline methods but the two most popular are linear or spline. This project chooses to employ spline interpolation. 
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Interpolated-Treasury-Curve.png)
 
-## Bootstrap Semi-Annual Zero Coupon Rates
+### Bootstrap Semi-Annual Zero Coupon Rates
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Spot-Curve.png)
 
-## Generate a cash flow 
+### Generate a cash flow 
 
-## Calculate Z-Spread Given a Price
+### Calculate Z-Spread Given a Price
 
-## Calcuate Price Given a Z-Spread
+### Calcuate Price Given a Z-Spread
  
-
-
-# Mathematics for Bootstrapping Zero Coupon Rates
+## Mathematics for Bootstrapping Zero Coupon Rates
 
 The following sections cover the mathematics behind Tresaury bond pricing and how to utlize market data to boostrap a spot rate curve. These calculations are all implemented in the code for this project.
 
