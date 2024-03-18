@@ -9,11 +9,11 @@ In fixed income markets, a security will have a future cash flow that can be dis
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
 # Objectives
-Use 'real' Treasury data to calculate zero-coupon rates over a time span of data. 
+- Use 'real' Treasury data to calculate zero-coupon rates over a time span of data. 
 
-Create an engine for generating mortgage and corporate bond cash flows with various prepayment assumptions.
+- Create an engine for generating mortgage and corporate bond cash flows with various prepayment assumptions.
 
-Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
+- Calculate Z-spread for a given cash flow, provided a price, or vice-versa.
 
 # Procedure
 This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
