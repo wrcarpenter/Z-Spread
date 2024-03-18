@@ -7,7 +7,7 @@
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/zspread-illustration.png)
 
-In fixed income markets, investors rely on various 'spread' measurments to help inform 
+In fixed income markets, investors rely on various 'spread' measurments to help provide a more informative metric of incremental yield they are receiving vs. a benchmark instrument (ex: Treasury bonds that are often considered to be 'riskless'). This spread would represent compensation for various risks in a given bond that are not in a riskless, benchmark instrument, such as: prepayment risk, credit risk, liquidity risk, etc.     
 
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
