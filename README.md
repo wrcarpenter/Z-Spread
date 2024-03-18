@@ -7,7 +7,7 @@
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/zspread-illustration.png)
 
-In fixed income markets, a security will have a future cash flow that can be discounted and given a yield by an investor.
+In fixed income markets, investors rely on various 'spread' measurments to help inform 
 
 Z-spread assumes zero volatility in cash flows and interest rates - it is considered to be a "static" valutaion tool, but still more informative than a simple yield spread.
 
