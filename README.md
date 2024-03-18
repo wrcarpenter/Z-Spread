@@ -39,11 +39,12 @@ Given usable rates data, the first step is now to create a interpolated series w
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Spot-Curve.png)
 
-### Generate a cash flow 
+### Generate a Bond Cash Flow 
 
-### Calculate Z-Spread Given a Price
+### Calculate Z-Spread Given a Bond Price
 
-### Calcuate Price Given a Z-Spread
+### Calcuate Price Given a Bond Z-Spread
+
  
 ## Mathematics for Bootstrapping Zero Coupon Rates
 
@@ -56,15 +57,15 @@ P = \frac{\frac{C}{\Delta}*F}{(1+\frac{r_1}{\Delta})^{1}} + \frac{\frac{C}{\Delt
 ```
 Where we define:
 
-$P$ -> Price of the bond (assumed to be par or 100.00 given the Treasury rates data)
+* $P$ : Price of the bond (assumed to be par or 100.00 given the Treasury rates data)
 
-$C$ -> Annualized coupon of the bond
+* $C$ : Annualized coupon of the bond
 
-$\Delta$ -> Compounding period (ex: semiannual bond payments would imply a $\Delta$ of 2)
+* $\Delta$ : Compounding period (ex: semiannual bond payments would imply a $\Delta$ of 2)
 
-$F$ -> Face value of the bond (assumed to be 100)
+* $F$ : Face value of the bond (assumed to be 100)
 
-$n$ -> number of periods 
+* $n$ : number of periods 
 
 This equation above can be more elegantly written as:
 
