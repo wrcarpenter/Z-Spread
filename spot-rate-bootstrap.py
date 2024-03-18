@@ -15,8 +15,6 @@ from scipy import interpolate
 from scipy.interpolate import CubicSpline
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator
 
-
-
 #%%
 # Read in par-yield data
 tsy  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
@@ -83,8 +81,10 @@ for row in range(0,spots.shape[0]):
         spots.iloc[row, col] = zero*100
 
 #%%
-# update/replace file 
-spots.to_csv('C:/Users/wcarp/OneDrive/Desktop/Z-Spread/Data')
+# Saving down relevant data (local drive) 
+
+ylds.to_csv('C:/Users/wcarp/OneDrive/Desktop/Z-Spread/Data/ylds-semi-annual.csv')
+spots.to_csv('C:/Users/wcarp/OneDrive/Desktop/Z-Spread/Data/spots-semi-annual.csv')
 
 #%% 
 
@@ -222,6 +222,48 @@ def spot_rate_curve():
 #def z_spread_visual():
     # use the arrow function in matplotlib 
 
+def spot_rate_visual():
+    
+    x1 = np.array(tsy_cols[5:])
+    x1 = x1.astype(float)
+    x2 = np.array(list(ylds.columns.values))
+    x2 = x2[2:].astype(float)
+    
+    y3 = np.array(spots.loc[1])
+    y3 = y3[2:]
+    
+    y4 = np.add(y3, 0.70)
+    
+    
+    
+    fig, ax = plt.subplots(figsize=(11, 5))
+    
+    # Background plot color
+    fig.patch.set_facecolor('gainsboro')
+    
+    ax.set_xticks(x1)
+    ax.set_yticks(np.arange(4.0, 6.0, 0.5))
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    
+    # Axis labels
+    ax.set_xlabel('Months', fontsize="large")
+    ax.set_ylabel('Yield (%)', fontsize="large")
+    ax.set_title('Spot and Yield Rates 3/8/24')
+    
+    # Scatter plots
+    plt.scatter(x2,y3, color="darkblue", label='Spot Rates')
+    plt.scatter(x2, y4, color="blue", marker='x')
+    
+    # Line plots
+    plt.plot(x2, y3, color="darkblue")
+    
+    for pt in y4:
+        plt.plot(np.array(x2[pt], x2[pt]), np.array(y4[pt], y4[pt]), color="blue")
+    
+    # Adding legend
+    plt.legend(loc='upper right', fontsize='large')
+    
 
 def tsy_rate_surface(elevation, azimuthal):
     
@@ -262,6 +304,7 @@ def tsy_rate_surface(elevation, azimuthal):
     
     ax.view_init(elev=elevation, azim=azimuthal)    #40,50    40,110   to flip around
     
+    
     ax.set_xlabel('Date', labelpad=20)
     ax.set_ylabel('Tenor (months)', labelpad=20)
     ax.set_zlabel('Rate (%)', labelpad=3)
@@ -281,6 +324,58 @@ plot3 = spot_rate_curve()
 #%%
 plot4 = tsy_rate_surface(40, 50)
 plot5 = tsy_rate_surface(40, 110)
+
+#%%
+plot6 = spot_rate_visual()
+
+
+x1 = np.array(tsy_cols[5:])
+x1 = x1.astype(float)
+x2 = np.array(list(ylds.columns.values))
+x2 = x2[2:].astype(float)
+
+y3 = np.array(spots.loc[1])
+y3 = y3[2:]
+
+y4 = np.add(y3, 0.70)
+
+fig, ax = plt.subplots(figsize=(14, 4))
+
+# Background plot color
+fig.patch.set_facecolor('white')
+
+ax.set_xticks(x1)
+ax.set_yticks(np.arange(4.0, 6.0, 0.5))
+plt.xticks(fontsize=8)
+plt.yticks(fontsize=8)
+
+# Axis labels
+ax.set_xlabel('Months', fontsize="large")
+ax.set_ylabel('Yield (%)', fontsize="large")
+ax.set_title('Calculating Z-Spread: An Illustration')
+
+
+for pt in range(0,len(y4)):
+
+    linex = np.array([x2[pt], x2[pt]])
+    liney = np.array([y3[pt], y4[pt]])
+    
+    plt.plot(linex, liney, color="lightblue",linewidth=2,linestyle='dashed')
+
+# Adding legend
+
+
+# Line plots
+plt.plot(x2, y3, color="darkblue")
+plt.plot(x2, y3, color="darkblue")
+
+# Scatter plots
+plt.scatter(x2,y3, color="darkblue", label='Spot Rates')
+plt.scatter(x2, y4, color="blue", marker='x', label='Spot Yields' )
+
+plt.legend(loc='upper right', fontsize='large')
+
+
 
 
 
