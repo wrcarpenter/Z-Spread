@@ -25,6 +25,9 @@ from matplotlib.dates import DateFormatter
 tsy  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
 head = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-spot-header.csv")
 
+# Define columns 
+tsy_cols = list(tsy.columns.values)
+cols     = list(head.columns.values)
 
 #%%
 from matplotlib.colors import LightSource

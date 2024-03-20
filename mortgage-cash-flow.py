@@ -31,6 +31,10 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     
     """
     
+    
+    cols = ['Period', 'Current Balance', 'Interest', 'Scheduled Principal', \
+            'Unscheduled Principal', 'Cash Flow']
+    
     orig_bal = bal
     settle   = pd.to_datetime(settle, format="%m/%d/%Y")
     settle   = settle.to_pydatetime()
@@ -42,6 +46,9 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     mtg_payment = bal*cpn/100*30/360* \
                   ((1+cpn/100*30/360)**(wam)) \
                   /((1+cpn/100*30/360)**(wam-1))
+    
+    
+    SMM = 1-(1-prepay/100)**(1/12)  # calculate SMM given a CPR
     
     # intialize variables    
     schedule_princ = 0
@@ -57,43 +64,41 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     
     for i in range(1, balloon+1):
         
+        cf_table[i-1,0] = i       # period number
+        cf_table[i-1,1] = bal              
+        
         pay_month = cf_date - DateOffset(months=1)
         
         month_days = 30  # assume 30/360 interest convention 
         
         interest = month_days/360*cpn/100*bal
         
-        if i < io +1: 
-            principal = 0
+        
+        # mortgage payment 
+        if i < io+1:
+            principal =0
         else:
-            principal = mtg_payment - interest
+            principal = mtg_payment - interest 
         
         if i == balloon:
-            prepay = bal - principal 
-        
+            prepay = bal - principal   # rest of remaining balance
         else:
-            prepay = 0
-            
+            prepay = SMM*(bal - principal)
+        
         bal = bal - principal - prepay 
         cash_flow = interest + principal + prepay
         days_from_settle = (cf_date - settle).days
         wal = (principal + prepay)*days_from_settle/orig_bal*1/365 + wal
         # populate table
         
-        cf_table[i-1,0] = i           # period number
-        cf_table[i-1,1] = bal         # current balance
+        # current balance
         cf_table[i-1,2] = interest
         cf_table[i-1,3] = principal
         cf_table[i-1,4] = prepay
         cf_table[i-1,5] = cash_flow
         
         cf_date = cf_date + DateOffset(months=1)
-        
-        
-     
-        
-    cols = ['Period', 'Current Balance', 'Interest', 'Scheduled Principal', 'Unscheduled Principal', 'Cash Flow']
-     
+             
     cf_table = pd.DataFrame(cf_table, columns=cols)   # completed yields array 
         
     return cf_table
@@ -107,14 +112,9 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
 #%%
 
 # Returns an array with mortgage cash flows 
-cf = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 0, 'CPR', 1000000)
+cf = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 25, 'CPR', 1000000)
 
 
-#%%
-# Visualizing Mortgage cash-flows 
-
-
-def mortgage_cf_chart():
     
 
 
