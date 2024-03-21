@@ -31,9 +31,8 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     
     """
     
-    
-    cols = ['Period', 'Current Balance', 'Interest', 'Scheduled Principal', \
-            'Unscheduled Principal', 'Cash Flow']
+    cols = ['Period', 'Starting Balance', 'Interest', 'Scheduled Principal', \
+            'Unscheduled Principal', 'Cash Flow', 'Ending Balance']
     
     orig_bal = bal
     settle   = pd.to_datetime(settle, format="%m/%d/%Y")
@@ -47,7 +46,6 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
                   ((1+cpn/100*30/360)**(wam)) \
                   /((1+cpn/100*30/360)**(wam-1))
     
-    
     SMM = 1-(1-prepay/100)**(1/12)  # calculate SMM given a CPR
     
     # intialize variables    
@@ -57,12 +55,16 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     cash_flow      = 0
     discounted_cf  = 0
     wal            = 0
-    principal      = bal                 
+    principal      = bal
+    paid_down      = False
+    pay_index      = 0                 
     
-    cf_table    = np.empty((balloon,6))
+    cf_table    = np.empty((balloon,7))
     cf_table[:] = np.nan
     
     for i in range(1, balloon+1):
+        
+        pay_month = cf_date - DateOffset(months=1)
         
         cf_table[i-1,0] = i       # period number
         cf_table[i-1,1] = bal              
@@ -73,9 +75,8 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
         
         interest = month_days/360*cpn/100*bal
         
-        
         # mortgage payment 
-        if i < io+1:
+        if i < io + 1:
             principal =0
         else:
             principal = mtg_payment - interest 
@@ -85,34 +86,60 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
         else:
             prepay = SMM*(bal - principal)
         
-        bal = bal - principal - prepay 
+        # Handle edge case where balance hits zero before balloon with prepayments
+        
+        if bal - interest - principal - prepay < 0:
+            paid_down = True
+            
+            if bal - interest - principal <  0:
+                principal = bal - interest - 0 
+                prepay    = 0 
+                bal = 0 
+            
+            else:
+                principal = bal - interest
+                prepay = bal - interest - principal - 0 
+                bal = 0
+                
+        else:
+
+            bal = bal - principal - prepay 
+
         cash_flow = interest + principal + prepay
         days_from_settle = (cf_date - settle).days
         wal = (principal + prepay)*days_from_settle/orig_bal*1/365 + wal
-        # populate table
         
+        # populate table
         # current balance
         cf_table[i-1,2] = interest
         cf_table[i-1,3] = principal
         cf_table[i-1,4] = prepay
         cf_table[i-1,5] = cash_flow
+        cf_table[i-1,6] = bal
         
         cf_date = cf_date + DateOffset(months=1)
-             
-    cf_table = pd.DataFrame(cf_table, columns=cols)   # completed yields array 
         
-    return cf_table
-
-# def mortgage_wal(cf, settle):
-    #continue
+        # Exit if mortgage is fully paid down in the period now 
+        if paid_down: 
+            pay_index = i
+            break
     
-    # calculate mortgage weighted average life
-
+    # Create cash flow tale and adjust final size for unused months before balloon         
+    cf_table = pd.DataFrame(cf_table[0:i,:], columns=cols)   
+            
+    return cf_table
     
 #%%
+# Returns an array with mortgage cash flows
+# Testing 
+cf_0cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  0, 'CPR', 500000)
+cf_5cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  5, 'CPR', 500000)
+cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 20, 'CPR', 500000)
+cf_40cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 40, 'CPR', 500000)
 
-# Returns an array with mortgage cash flows 
-cf = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 25, 'CPR', 1000000)
+
+
+
 
 
     

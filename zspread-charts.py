@@ -1,6 +1,5 @@
-
 """
-Charting
+Z-Spread Charting
 
 Code for charts used in the 'Z-Spread' project. 
 
@@ -22,8 +21,10 @@ from matplotlib.dates import DateFormatter
 
 #%%
 # Read in par-yield data
-tsy  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
-head = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-spot-header.csv")
+tsy   = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-rates.csv", header=0)
+head  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/daily-treasury-spot-header.csv")
+spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-semi-annual.csv", header=0)
+ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv", header=0)
 
 # Define columns 
 tsy_cols = list(tsy.columns.values)
@@ -190,13 +191,9 @@ def tsy_rate_surface(elevation, azimuthal):
 
 #%%
 # Generate plots 
-plot1 = tsy_rate_plot()
-plot2 = interp_tsy_yld_plot()
-
-#%%
-plot3 = spot_rate_curve()
-
-#%%
-plot4 = tsy_rate_surface(40, 50)
-plot5 = tsy_rate_surface(40, 110)
+tsy_rates  = tsy_rate_plot()
+tsy_interp = interp_tsy_yld_plot()
+spot_curve = spot_rate_curve()
+surf1      = tsy_rate_surface(40, 50)
+surf2      = tsy_rate_surface(40, 110)
 
