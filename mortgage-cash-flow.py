@@ -15,7 +15,8 @@ from pandas.tseries.offsets import DateOffset
 #%%
 
 # Generic methodology to create mortgage cashflows
-def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepay_type, bal):
+def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
+                       io, delay, speed, prepay_type, bal):
     
     """
     Generate generic mortgage cash flows with various prepayment speeds.
@@ -40,14 +41,6 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     cf_month = settle + DateOffset(months=1)
     cf_date  = datetime.datetime(cf_month.year, cf_month.month, delay-29)
     
-    # Accrued interest 
-    
-    mtg_payment = bal*cpn/100*30/360* \
-                  ((1+cpn/100*30/360)**(wam)) \
-                  /((1+cpn/100*30/360)**(wam-1))
-    
-    SMM = 1-(1-prepay/100)**(1/12)  # calculate SMM given a CPR
-    
     # intialize variables    
     schedule_princ = 0
     interest       = 0
@@ -64,6 +57,12 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
     
     for i in range(1, balloon+1):
         
+        mtg_payment = bal*cpn/100*30/360* \
+                      ((1+cpn/100*30/360)**(wam)) \
+                      /((1+cpn/100*30/360)**(wam)-1)
+        
+        SMM = 1-(1-speed/100)**(1/12)  # calculate SMM given a CPR
+
         pay_month = cf_date - DateOffset(months=1)
         
         cf_table[i-1,0] = i       # period number
@@ -77,7 +76,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
         
         # mortgage payment 
         if i < io + 1:
-            principal =0
+            principal = 0
         else:
             principal = mtg_payment - interest 
         
@@ -86,11 +85,10 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
         else:
             prepay = SMM*(bal - principal)
         
-        # Handle edge case where balance hits zero before balloon with prepayments
+        # Edge case where balance hits zero before balloon 
         
         if bal - interest - principal - prepay < 0:
-            paid_down = True
-            
+
             if bal - interest - principal <  0:
                 principal = bal - interest - 0 
                 prepay    = 0 
@@ -108,6 +106,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
         cash_flow = interest + principal + prepay
         days_from_settle = (cf_date - settle).days
         wal = (principal + prepay)*days_from_settle/orig_bal*1/365 + wal
+        wam = wam - 1
         
         # populate table
         # current balance
@@ -124,7 +123,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
             pay_index = i
             break
     
-    # Create cash flow tale and adjust final size for unused months before balloon         
+    # Table and adjust final size for unused months before balloon         
     cf_table = pd.DataFrame(cf_table[0:i,:], columns=cols)   
             
     return cf_table
@@ -134,7 +133,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, prepay, prepa
 # Testing 
 cf_0cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  0, 'CPR', 500000)
 cf_5cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  5, 'CPR', 500000)
-cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 20, 'CPR', 500000)
+cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 25, 'CPR', 500000)
 cf_40cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 40, 'CPR', 500000)
 
 
