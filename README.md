@@ -41,6 +41,11 @@ Given usable rates data, the first step is now to create a interpolated series w
 
 Create a mortgage or corporate bond cash flow. Apply varvious prepayment assumptions. 
 
+```Python
+def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay_type, bal)
+```
+
+
 ### Calculate Z-Spread Given a Bond Price
 
 Take a cashflow and price and determine the yield spread. Apply curve shifts and calculate price sensitivity. Introduce the concept of negative convexity here too. 
