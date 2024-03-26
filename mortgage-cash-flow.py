@@ -1,5 +1,5 @@
 """
-Mortgage Cash Flow
+Mortgage Cash Flow Pricing
 W Carpenter
 """
 import numpy as np
@@ -16,7 +16,7 @@ from pandas.tseries.offsets import DateOffset
 
 # Generic methodology to create mortgage cashflows
 def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
-                       io, delay, speed, prepay_type, bal):
+                       io, delay, speed, prepay_type, bal) -> pd.DataFrame:
     
     """
     Generate generic mortgage cash flows with various prepayment speeds.
@@ -41,7 +41,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
     cf_month = settle + DateOffset(months=1)
     cf_date  = datetime.datetime(cf_month.year, cf_month.month, delay-29)
     
-    # intialize variables    
+    # Intialize variables    
     schedule_princ = 0
     interest       = 0
     prepay         = 0
@@ -127,14 +127,38 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
     cf_table = pd.DataFrame(cf_table[0:i,:], columns=cols)   
             
     return cf_table
+
+def mortgage_wal(settle_dt, cf) -> float:
     
+    '''
+    Calculate weighted-average-life of a mortgage cash flow.
+    
+    '''
+    
+    # need settle date to determine period of time between cash flow and present
+    
+        
 #%%
+# Unit Testing Mortgage Cash flows 
 # Returns an array with mortgage cash flows
-# Testing 
+
+# Unit Testing 
 cf_0cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  0, 'CPR', 500000)
 cf_5cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  5, 'CPR', 500000)
 cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 25, 'CPR', 500000)
 cf_40cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 40, 'CPR', 500000)
+
+
+
+#%%
+# Charting cash flows
+
+def mortgage_cf_chart(cf):
+    
+
+
+
+
 
 
 
