@@ -39,7 +39,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
     settle   = pd.to_datetime(settle, format="%m/%d/%Y")
     settle   = settle.to_pydatetime()
     cf_month = settle + DateOffset(months=1)
-    cf_date  = datetime.datetime(cf_month.year, cf_month.month, delay-29)
+    cf_date  = datetime.datetime(cf_month.year, cf_month.month, delay)
     
     # Intialize variables    
     schedule_princ = 0
@@ -50,9 +50,10 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
     wal            = 0
     principal      = bal
     paid_down      = False
-    pay_index      = 0                 
+    pay_index      = 0
+    month_days     = 30    # assume a 30/360 interest accrual               
     
-    cf_table    = np.empty((balloon,7))
+    cf_table    = np.empty((balloon,8))
     cf_table[:] = np.nan
     
     for i in range(1, balloon+1):
@@ -64,14 +65,13 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
         SMM = 1-(1-speed/100)**(1/12)  # calculate SMM given a CPR
 
         pay_month = cf_date - DateOffset(months=1)
+
+        date_add = pay_month.strftime("%m/%d/%Y")
+        print(type(date_add))
         
         cf_table[i-1,0] = i       # period number
         cf_table[i-1,1] = bal              
-        
-        pay_month = cf_date - DateOffset(months=1)
-        
-        month_days = 30  # assume 30/360 interest convention 
-        
+                        
         interest = month_days/360*cpn/100*bal
         
         # mortgage payment 
@@ -115,6 +115,8 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
         cf_table[i-1,4] = prepay
         cf_table[i-1,5] = cash_flow
         cf_table[i-1,6] = bal
+        cf_table[i-1,7] = date_add
+        
         
         cf_date = cf_date + DateOffset(months=1)
         
@@ -128,12 +130,17 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
             
     return cf_table
 
-def mortgage_wal(settle_dt, cf) -> float:
+def mortgage_wal(settle, cf) -> float:
     
     '''
     Calculate weighted-average-life of a mortgage cash flow.
-    
     '''
+    
+    settle    = pd.to_datetime(settle, format="%m/%d/%Y")
+    settle    = settle.to_pydatetime()
+    
+    cf['WAL'] = 0
+    
     
     # need settle date to determine period of time between cash flow and present
     
@@ -143,10 +150,10 @@ def mortgage_wal(settle_dt, cf) -> float:
 # Returns an array with mortgage cash flows
 
 # Unit Testing 
-cf_0cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  0, 'CPR', 500000)
-cf_5cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45,  5, 'CPR', 500000)
-cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 25, 'CPR', 500000)
-cf_40cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 45, 40, 'CPR', 500000)
+cf_0cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15,  0, 'CPR', 500000)
+cf_5cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15,  5, 'CPR', 500000)
+cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15, 25, 'CPR', 500000)
+cf_40cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15, 40, 'CPR', 500000)
 
 
 
