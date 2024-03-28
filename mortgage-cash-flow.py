@@ -32,12 +32,11 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
     
     """
     
-    cols = ['Period', 'Starting Balance', 'Interest', 'Scheduled Principal', \
+    cols = ['Date','Period', 'Starting Balance', 'Interest', 'Scheduled Principal', \
             'Unscheduled Principal', 'Cash Flow', 'Ending Balance']
     
     orig_bal = bal
     settle   = pd.to_datetime(settle, format="%m/%d/%Y")
-    settle   = settle.to_pydatetime()
     cf_month = settle + DateOffset(months=1)
     cf_date  = datetime.datetime(cf_month.year, cf_month.month, delay)
     
@@ -53,9 +52,8 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
     pay_index      = 0
     month_days     = 30    # assume a 30/360 interest accrual               
     
-    cf_table    = np.empty((balloon,8))
-    cf_table[:] = np.nan
-    
+    table   = pd.DataFrame(index=range(balloon), columns=cols)
+
     for i in range(1, balloon+1):
         
         mtg_payment = bal*cpn/100*30/360* \
@@ -65,13 +63,12 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
         SMM = 1-(1-speed/100)**(1/12)  # calculate SMM given a CPR
 
         pay_month = cf_date - DateOffset(months=1)
-
-        date_add = pay_month.strftime("%m/%d/%Y")
-        print(type(date_add))
         
-        cf_table[i-1,0] = i       # period number
-        cf_table[i-1,1] = bal              
-                        
+        
+        table.iloc[i-1,0] = pay_month
+        table.iloc[i-1,1] = i       # period number
+        table.iloc[i-1,2] = bal  
+
         interest = month_days/360*cpn/100*bal
         
         # mortgage payment 
@@ -107,16 +104,12 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
         days_from_settle = (cf_date - settle).days
         wal = (principal + prepay)*days_from_settle/orig_bal*1/365 + wal
         wam = wam - 1
-        
-        # populate table
-        # current balance
-        cf_table[i-1,2] = interest
-        cf_table[i-1,3] = principal
-        cf_table[i-1,4] = prepay
-        cf_table[i-1,5] = cash_flow
-        cf_table[i-1,6] = bal
-        cf_table[i-1,7] = date_add
-        
+                
+        table.iloc[i-1,3] = interest
+        table.iloc[i-1,4] = principal
+        table.iloc[i-1,5] = prepay
+        table.iloc[i-1,6] = cash_flow
+        table.iloc[i-1,7] = bal
         
         cf_date = cf_date + DateOffset(months=1)
         
@@ -125,10 +118,9 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, \
             pay_index = i
             break
     
-    # Table and adjust final size for unused months before balloon         
-    cf_table = pd.DataFrame(cf_table[0:i,:], columns=cols)   
-            
-    return cf_table
+    # Table and adjust final size for unused months before balloon
+         
+    return table
 
 def mortgage_wal(settle, cf) -> float:
     
@@ -136,16 +128,17 @@ def mortgage_wal(settle, cf) -> float:
     Calculate weighted-average-life of a mortgage cash flow.
     '''
     
-    settle    = pd.to_datetime(settle, format="%m/%d/%Y")
-    settle    = settle.to_pydatetime()
+    settle       = pd.to_datetime(settle, format="%m/%d/%Y")
+    cf['settle'] = settle
+    cf['diff']   = (pd.to_datetime(cf['Date']) - cf['settle']).dt.days
     
-    cf['WAL'] = 0
-    
-    
-    # need settle date to determine period of time between cash flow and present
-    
-        
-#%%
+    num    = (cf['diff']*((cf['Scheduled Principal'] + cf['Unscheduled Principal']))).sum()
+    denom  = (cf['Scheduled Principal'] + cf['Unscheduled Principal']).sum()          
+    wal = num/denom*1/365
+         
+    return wal
+
+_#%%
 # Unit Testing Mortgage Cash flows 
 # Returns an array with mortgage cash flows
 
@@ -155,7 +148,11 @@ cf_5cpr  = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15,  5, 'CPR
 cf_20cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15, 25, 'CPR', 500000)
 cf_40cpr = mortgage_cash_flow('03/01/2024', 7.00, 360, 360, 360, 0, 15, 40, 'CPR', 500000)
 
-
+# Weighted Average life
+print(mortgage_wal('03/01/2024', cf_0cpr))
+print(mortgage_wal('03/01/2024', cf_5cpr))
+print(mortgage_wal('03/01/2024', cf_20cpr))
+print(mortgage_wal('03/01/2024', cf_40cpr))
 
 #%%
 # Charting cash flows
