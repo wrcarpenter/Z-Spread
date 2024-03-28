@@ -20,13 +20,25 @@ cf_10cpr  = mbs.cash_flow('03/01/2024', 6.50, 360, 360, 120, 0, 15,  10, 'CPR', 
 wal       = mbs.wal('03/01/2024', cf_10cpr)
 
 # Create curve for I-spread
-curve = ylds.loc[0]
+# pandas dataframe of index
+# semi-annual data 
+curve = ylds.loc[ylds['Date']=='3/8/2024']
+curve = curve.drop("Date", axis=1)
 
 #%%
 
+
 #%%
 
-def price() -> float:
+def duration(cf, settle, mey) -> float:
+    
+
+
+#%%
+
+def price(cf, curve, settle, spread, spread_type) -> float:
+    
+    
     return 0
 
 def z_spread(cf, curve, settle, price) -> float:
@@ -46,7 +58,7 @@ def i_spread(cf, curve, settle, price) -> float:
     Parameters
     -----------
     cf     : pd.dataframe of cash flow data
-    curve  : Treasury yield curve
+    curve  : Treasury yield curv ** semiannual data
     settle : settle date as a string
     price  : bond price as a float 
     
@@ -55,6 +67,10 @@ def i_spread(cf, curve, settle, price) -> float:
     I-spread as a float (interpolated yield spread)
     
     """
+    
+    wal = mbs.wal(settle, cf)
+    print(wal)
+    
     # get wal
     # get an index 
     # get bounds
