@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """
-Z-Spread Calculation
+Bond Pricing Engine
+Author: William Carpenter
 
 Also contains engine for I-spread (interpolated spread). 
+
 
 """
 # Packages/modules
@@ -10,39 +11,27 @@ Also contains engine for I-spread (interpolated spread).
 import mortgage_cash_flow as mbs  # custom module cash flow engine
 import bond_price as px
 import datetime as dt
-
-#%%
-# Import yield data 
-
     
 #%%
-# Create bond cash flow 
+# Testing
+ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
+spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-monthly.csv")
 
+i_curve = ylds.loc[ylds['Date']=='3/8/2024']
+i_curve = curve.drop("Date", axis=1)
 
-wal       = mbs.wal('03/01/2024', cf_10cpr)
+z_curve = spots.loc[spots['Date']=='3/8/2024']
+z_curve = z_curve.drop("Date", axis=1)
 
-months = np.array((cf_10cpr["Period"] - 1).astype(int))
-
-# Create curve for I-spread
-# semi-annual data 
-
-
-tenor = pd.DataFrame(curve.columns.values.astype(int))
-
-#%%
-
-ylds = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
-
-curve = ylds.loc[ylds['Date']=='3/8/2024']
-curve = curve.drop("Date", axis=1)
-
-
-# Verified!
+# Verified --
 cf_7cpr  = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
 print(mbs.wal('03/29/2024', cf_7cpr))
 
+px_i      = price(cf_7cpr, i_curve, "03/29/2024", 100, "I")
+px_z      = price(cf_7cpr, z_curve, "03/29/2024", 100, "Z")
 
-sprd      = price(cf_7cpr, curve, "03/29/2024", 100, "I")
+#%%
+
 
 
 
@@ -51,7 +40,7 @@ sprd      = price(cf_7cpr, curve, "03/29/2024", 100, "I")
 def price(cf, curve, settle, spread, typ) -> float:
     
     """
-    Bond Price given a spread 
+    Bond Pricing Engine.
     
     Currently can solve for price given a bond I-spread. 
 
@@ -87,6 +76,7 @@ def price(cf, curve, settle, spread, typ) -> float:
     days_pay = (pay - settle.to_pydatetime()).days
     accr_int = accrued/360*rate/100*curr
 
+    
     # assume i-spread for now 
     tenor = mbs.wal(settle, cf)*12
     m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
@@ -100,19 +90,13 @@ def price(cf, curve, settle, spread, typ) -> float:
     intrp = y_lb + (tenor - m_lb)*((y_ub - y_lb)/(m_ub - m_lb))
     bey   = intrp + spread/100
     mey   = 12*((1+bey/(2*100))**(2/12)-1)*100
-    
-    
-    print(bey, mey)
-    
+        
     months   = np.array((cf["Period"] - 1).astype(int))
     cf_flow  = np.array((cf["Cash Flow"]).astype(float))
         
     price    = (np.sum(cf_flow/((1+mey/(12*100))**(months))) \
                 -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
     
-    print(" ")
-    print()
-    print("Price", px.tick(price))
     return price
 
 def z_spread(cf, curve, settle, price) -> float:
@@ -153,6 +137,8 @@ def i_spread(cf, curve, settle, price) -> float:
 
 
 def duration(cf, settle, mey) -> float:
+    
+    # once you have a MEY ... duration should not depend on Z or I spread 
     
     return 0
 
