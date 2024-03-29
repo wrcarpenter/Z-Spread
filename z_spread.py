@@ -6,46 +6,87 @@ Also contains engine for I-spread (interpolated spread).
 
 """
 # Packages/modules
+
 import mortgage_cash_flow as mbs  # custom module cash flow engine
 import bond_price as px
+import datetime as dt
 
 #%%
 # Import yield data 
-ylds = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
+
     
 #%%
 # Create bond cash flow 
 
-cf_10cpr  = mbs.cash_flow('03/01/2024', 6.50, 360, 360, 120, 0, 15,  10, 'CPR', 100000)
+
 wal       = mbs.wal('03/01/2024', cf_10cpr)
+
+months = np.array((cf_10cpr["Period"] - 1).astype(int))
 
 # Create curve for I-spread
 # semi-annual data 
-curve = ylds.loc[ylds['Date']=='3/8/2024']
-curve = curve.drop("Date", axis=1)
+
 
 tenor = pd.DataFrame(curve.columns.values.astype(int))
 
 #%%
 
-sprd  = price(cf_10cpr, curve, "03/01/2024", 100, "I")
+ylds = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
+
+curve = ylds.loc[ylds['Date']=='3/8/2024']
+curve = curve.drop("Date", axis=1)
+
+
+# Verified!
+cf_7cpr  = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
+print(mbs.wal('03/29/2024', cf_7cpr))
+
+
+sprd      = price(cf_7cpr, curve, "03/29/2024", 100, "I")
+
+
 
 #%%
 
-#%%
-
-def duration(cf, settle, mey) -> float:
+def price(cf, curve, settle, spread, typ) -> float:
     
-    return 0
+    """
+    Bond Price given a spread 
     
+    Currently can solve for price given a bond I-spread. 
 
-
-#%%
-
-def price(cf, curve, settle, spread, spread_type) -> float:
+    Spread Types:
+        Z-Spread -> spot rate yield spread
+        I-Spread -> interpolated treasuries
     
-    # for monthly cashflows
+    Parameters
+    ------------
+    cf     : dataframe of cash flows
+    curve  : yield or spot rate curve
+    settle : bond settle date     
+    spread : Z or I spread
+    typ    : defining if Z or I spread
     
+    Returns:
+    ------------
+    Bond dollar price as a float
+    
+    """
+    
+    # Cash flow characteristics 
+    rate     = cf["Rate"].loc[0]
+    curr     = cf["Starting Balance"].loc[0]
+    delay    = cf["Pay Delay"].loc[0]
+
+    # Handling settle dates and accrued interest 
+    settle   = pd.to_datetime(settle, format="%m/%d/%Y")
+    month    = (settle + DateOffset(months=1)).to_pydatetime() # this works 
+    pay      = datetime.datetime(month.year, month.month, delay-29)  
+
+    accrued  = (settle.to_pydatetime() - datetime.datetime(settle.year, settle.month, 1)).days
+    days_pay = (pay - settle.to_pydatetime()).days
+    accr_int = accrued/360*rate/100*curr
+
     # assume i-spread for now 
     tenor = mbs.wal(settle, cf)*12
     m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
@@ -60,15 +101,19 @@ def price(cf, curve, settle, spread, spread_type) -> float:
     bey   = intrp + spread/100
     mey   = 12*((1+bey/(2*100))**(2/12)-1)*100
     
-    print(tenor, index, m_ub, m_lb, bey, mey)
     
-    months = 
+    print(bey, mey)
     
+    months   = np.array((cf["Period"] - 1).astype(int))
+    cf_flow  = np.array((cf["Cash Flow"]).astype(float))
+        
+    price    = (np.sum(cf_flow/((1+mey/(12*100))**(months))) \
+                -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
     
-    
-    return 0
-
-
+    print(" ")
+    print()
+    print("Price", px.tick(price))
+    return price
 
 def z_spread(cf, curve, settle, price) -> float:
     
@@ -76,6 +121,9 @@ def z_spread(cf, curve, settle, price) -> float:
     Z-Spread 
     
     """
+    
+    # solve for a price with Z-spread and use Newton to solve it to equal given a price
+    
     return 0
  
 
@@ -103,11 +151,10 @@ def i_spread(cf, curve, settle, price) -> float:
     
     return 0
 
-        
 
-
-
-
+def duration(cf, settle, mey) -> float:
+    
+    return 0
 
 
 
