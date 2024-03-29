@@ -30,6 +30,10 @@ print(mbs.wal('03/29/2024', cf_7cpr))
 px_i      = price(cf_7cpr, i_curve, "03/29/2024", 100, "I")
 px_z      = price(cf_7cpr, z_curve, "03/29/2024", 100, "Z")
 
+len(cf_7cpr)
+
+arr = np.array(z_curve.iloc[0:len(cf_7cpr), 0])
+
 #%%
 
 
@@ -61,7 +65,6 @@ def price(cf, curve, settle, spread, typ) -> float:
     Bond dollar price as a float
     
     """
-    
     # Cash flow characteristics 
     rate     = cf["Rate"].loc[0]
     curr     = cf["Starting Balance"].loc[0]
@@ -76,7 +79,6 @@ def price(cf, curve, settle, spread, typ) -> float:
     days_pay = (pay - settle.to_pydatetime()).days
     accr_int = accrued/360*rate/100*curr
 
-    
     # assume i-spread for now 
     tenor = mbs.wal(settle, cf)*12
     m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
@@ -93,7 +95,12 @@ def price(cf, curve, settle, spread, typ) -> float:
         
     months   = np.array((cf["Period"] - 1).astype(int))
     cf_flow  = np.array((cf["Cash Flow"]).astype(float))
-        
+    
+    # Here is where I or Z-spread must be defined
+    # assume Z-spread is monthly for now
+    
+    spots    = np.array(curve[0:]) 
+    
     price    = (np.sum(cf_flow/((1+mey/(12*100))**(months))) \
                 -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
     
