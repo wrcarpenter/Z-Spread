@@ -3,6 +3,11 @@
 # Z-Spread 
 > Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it. - Albert Einstein
 
+Z-Spread Notebook Code:
+Spot Rate Bootstrap Code:
+Mortgage Cash Flow Engine Code:
+
+
 ## Introduction
 
 In fixed income markets, investors rely on various 'spread' measurments to help provide a more informative metric of incremental yield they are receiving vs. a benchmark instrument (ex: Treasury bonds that are often considered to be 'riskless'). This spread would represent compensation for various risks in a given bond that are not in a riskless, benchmark instrument, such as: prepayment risk, credit risk, liquidity risk, etc. Spreads can be readily calculated given a bond cash flow and price and will also give investors a tool to compare relative value between bonds that could have different characteristics. This project focuses on the calculation **Z-Spread**, which assumes *zero-volatility* in cash flows and interest rates - it is considered to be a 'static' valutaion tool, but still more informative than a simple yield spread.
