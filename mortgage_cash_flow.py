@@ -61,7 +61,7 @@ def cash_flow(settle, cpn, wam, term, balloon, \
                       ((1+cpn/100*30/360)**(wam)) \
                       /((1+cpn/100*30/360)**(wam)-1)
         
-        SMM = 1-(1-speed/100)**(1/12)  # calculate SMM given a CPR
+        smm = 1-(1-speed/100)**(1/12)  # calculate SMM given a CPR
 
         pay_month = cf_date - DateOffset(months=1)
         
@@ -82,7 +82,7 @@ def cash_flow(settle, cpn, wam, term, balloon, \
             prepay = bal - principal   # rest of remaining balance
             paid_down = True
         else:
-            prepay = SMM*(bal - principal)
+            prepay = smm*(bal - principal)
         
         # Edge case where balance hits zero before balloon?        
         if bal - interest - principal - prepay < 0:

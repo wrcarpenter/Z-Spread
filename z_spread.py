@@ -20,17 +20,23 @@ cf_10cpr  = mbs.cash_flow('03/01/2024', 6.50, 360, 360, 120, 0, 15,  10, 'CPR', 
 wal       = mbs.wal('03/01/2024', cf_10cpr)
 
 # Create curve for I-spread
-# pandas dataframe of index
 # semi-annual data 
 curve = ylds.loc[ylds['Date']=='3/8/2024']
 curve = curve.drop("Date", axis=1)
 
+tenor = pd.DataFrame(curve.columns.values.astype(int))
+
 #%%
 
+sprd  = price(cf_10cpr, curve, "03/01/2024", 100, "I")
+
+#%%
 
 #%%
 
 def duration(cf, settle, mey) -> float:
+    
+    return 0
     
 
 
@@ -38,8 +44,31 @@ def duration(cf, settle, mey) -> float:
 
 def price(cf, curve, settle, spread, spread_type) -> float:
     
+    # for monthly cashflows
+    
+    # assume i-spread for now 
+    tenor = mbs.wal(settle, cf)*12
+    m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
+    
+    index = m["Months"].gt(tenor).idxmax()
+    m_ub  = m["Months"].iloc[index]   
+    m_lb  = m["Months"].iloc[index-1]
+    y_ub  = curve.iloc[0,index]
+    y_lb  = curve.iloc[0,index-1]
+    
+    intrp = y_lb + (tenor - m_lb)*((y_ub - y_lb)/(m_ub - m_lb))
+    bey   = intrp + spread/100
+    mey   = 12*((1+bey/(2*100))**(2/12)-1)*100
+    
+    print(tenor, index, m_ub, m_lb, bey, mey)
+    
+    months = 
+    
+    
     
     return 0
+
+
 
 def z_spread(cf, curve, settle, price) -> float:
     
@@ -66,35 +95,14 @@ def i_spread(cf, curve, settle, price) -> float:
     -----------
     I-spread as a float (interpolated yield spread)
     
-    """
-    
-    wal = mbs.wal(settle, cf)
-    print(wal)
-    
+    """    
     # get wal
     # get an index 
     # get bounds
     # interpolation formula
     
     return 0
-        
-def interp(p1, p2) -> float:
-    
-    return 0
-    
-    """
-    Linear Yield Interpolation
 
-    Parameters
-    -----------
-    p1 : Point 1 
-    p2 : Point 2
-
-    Returns 
-    -----------
-    Interpolated yield point (linear) 
-
-    """
         
 
 
