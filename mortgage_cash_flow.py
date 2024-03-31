@@ -114,12 +114,14 @@ def wal(settle, cf) -> float:
     
     '''
     
-    settle       = pd.to_datetime(settle, format="%m/%d/%Y")
-    cf['settle'] = settle
-    cf['diff']   = (pd.to_datetime(cf['Date']) - cf['settle']).dt.days
+    arr = cf
     
-    num          = (cf['diff']*((cf['Scheduled Principal'] + cf['Unscheduled Principal']))).sum()
-    denom        = (cf['Scheduled Principal'] + cf['Unscheduled Principal']).sum()          
+    settle       = pd.to_datetime(settle, format="%m/%d/%Y")
+    arr['settle'] = settle
+    arr['diff']   = (pd.to_datetime(arr['Date']) - arr['settle']).dt.days
+    
+    num          = (arr['diff']*((arr['Scheduled Principal'] + arr['Unscheduled Principal']))).sum()
+    denom        = (arr['Scheduled Principal'] + arr['Unscheduled Principal']).sum()          
     wal          = num/denom*1/365
          
     return wal

@@ -1,5 +1,5 @@
 """
-Bond Pricing Engine
+Bond Pricing Engine - Z-Spread, I-Spread, Duration
 Author: William Carpenter
 
 Also contains engine for I-spread (interpolated spread). 
@@ -10,10 +10,11 @@ Also contains engine for I-spread (interpolated spread).
 import mortgage_cash_flow as mbs  # custom module cash flow engine
 import bond_price as px
 import datetime as dt
+from scipy.optimize import newton
+import numpy as np
+import pandas as pd
+from pandas.tseries.offsets import DateOffset
     
-#%%
-
-
 #%%
 
 def price(cf, curve, settle, spread, typ) -> float:
@@ -21,7 +22,9 @@ def price(cf, curve, settle, spread, typ) -> float:
     """
     Bond Pricing Engine.
     
-    Currently can solve for price given a bond I-spread. 
+    Currently can solve for price given a bond I-spread or Z-Spread.
+    Assumes provided cashflows are monthly. 
+    
 
     Spread Types:
         Z-Spread -> spot rate yield spread
@@ -40,7 +43,8 @@ def price(cf, curve, settle, spread, typ) -> float:
     Bond dollar price as a float
     
     """
-    # Cash flow characteristics 
+        
+    # Cashflow characteristics given in provided dataframe 
     rate     = cf["Rate"].loc[0]
     curr     = cf["Starting Balance"].loc[0]
     delay    = cf["Pay Delay"].loc[0]
@@ -57,15 +61,18 @@ def price(cf, curve, settle, spread, typ) -> float:
     tenor = mbs.wal(settle, cf)*12
     m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
     
-    # Interpolation
+    # Points for interpolation
     index = m["Months"].gt(tenor).idxmax()
     m_ub  = m["Months"].iloc[index]   
     m_lb  = m["Months"].iloc[index-1]
     y_ub  = curve.iloc[0,index]
     y_lb  = curve.iloc[0,index-1]
-    
+    # Linear interpolation
     intrp = y_lb + (tenor - m_lb)*((y_ub - y_lb)/(m_ub - m_lb))
+    
+    # Bond equivalent yield at WAL point 
     bey   = intrp + spread/100
+    # Monthly equivalent yield
     mey   = 12*((1+bey/(2*100))**(2/12)-1)*100
         
     months   = np.array((cf["Period"] - 1).astype(int))
@@ -73,87 +80,88 @@ def price(cf, curve, settle, spread, typ) -> float:
     
     # Z-Spread calculation 
     if typ == "Z":
+        
+        # Extract correctly sized spot curve - assume monthly cashflows
         spots  = np.array(curve.iloc[0,0:len(cf)])
+        # Calculate z rates on each point of the spot curve
         z_rate = spots + spread
+        # Calculate discount rates
         z_zcb  = 1/((1+z_rate/(12*100))**(months))
-        price  = (np.sum(cf_flow*z_zcb)-accr_int)* \ 
+        # Price bond 
+        price  = (np.sum(cf_flow*z_zcb)-accr_int)*\
                   100/curr*1/(1+mey/100*days_pay/360)
                   
     # I-Spread calculation 
     elif typ == "I":
-         price = (np.sum(cf_flow/((1+mey/(12*100))**(months))) \
-                 -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
+         
+        price = (np.sum(cf_flow/((1+mey/(12*100))**(months)))\
+                  -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
     
     return price
 
-def z_spread(cf, curve, settle, price) -> float:
-    
-    """
-    Z-Spread 
-    
-    """
-    
-    # solve for a price with Z-spread and use Newton to solve it to equal given a price
-    
-    return 0
- 
 
-def i_spread(cf, curve, settle, price) -> float:
+
+def spread_solver(spread, cf, curve, settle, px, typ):
+        
+    """
+    Newton Root Finding Function - Solving for bond spread
+    """
+    
+    solver = price(cf, curve, settle, spread, typ)  # using a spread to solve for spread   
+    
+    return (solver - px)
+
+    
+def spread(cf, curve, settle, px, typ):
     
     """
-    I-Spread 
+    Bond Spread
+    """
     
-    Parameters
-    -----------
-    cf     : pd.dataframe of cash flow data
-    curve  : Treasury yield curv ** semiannual data
-    settle : settle date as a string
-    price  : bond price as a float 
+    # Solver to calculate Z-spread
+    s0    = 100
+    miter = 1000
     
-    Returns
-    -----------
-    I-spread as a float (interpolated yield spread)
+    sp = newton(spread_solver, s0, args=(cf, curve, settle, px, typ), maxiter=miter)
     
-    """    
-    # get wal
-    # get an index 
-    # get bounds
-    # interpolation formula
+    return sp
     
-    return 0
-
 
 def duration(cf, settle, mey) -> float:
     
-    # once you have a MEY ... duration should not depend on Z or I spread 
+    # in progress - need to incorporate interpolation here 
     
     return 0
 
 
 #%%
 
-# Testing
+
+
+# Get data
 ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
 spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-monthly.csv")
 
+# I-curve
 i_curve = ylds.loc[ylds['Date']=='3/8/2024']
-i_curve = curve.drop("Date", axis=1)
+i_curve = i_curve.drop("Date", axis=1)
 
+# Z-curve
 z_curve = spots.loc[spots['Date']=='3/8/2024']
 z_curve = z_curve.drop("Date", axis=1)
 
-# Verified --
-cf_7cpr  = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
-print(mbs.wal('03/29/2024', cf_7cpr))
+# Cashflows
+cf_7cpr     = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
+cf_7cpr_wal = mbs.wal('03/29/2024', cf_7cpr)
 
-px_i      = price(cf_7cpr, i_curve, "03/29/2024", 100, "I")
+# Getting prices
+px_i      = price(cf_7cpr, i_curve, "03/29/2024", 172, "I")
 px_z      = price(cf_7cpr, z_curve, "03/29/2024", 100, "Z")
 
-len(cf_7cpr)
+# Getting spreads
 
-arr = np.array(z_curve.iloc[0,0:len(cf_7cpr)])
+i_sprd   = spread(cf_7cpr, i_curve, "03/29/2024", px_i, "I")
 
-arr = arr + 100
 
 
 
