@@ -84,7 +84,7 @@ def price(cf, curve, settle, spread, typ) -> float:
         # Extract correctly sized spot curve - assume monthly cashflows
         spots  = np.array(curve.iloc[0,0:len(cf)])
         # Calculate z rates on each point of the spot curve
-        z_rate = spots + spread
+        z_rate = spots + spread/100
         # Calculate discount rates
         z_zcb  = 1/((1+z_rate/(12*100))**(months))
         # Price bond 
@@ -136,8 +136,6 @@ def duration(cf, settle, mey) -> float:
 
 #%%
 
-
-
 # Get data
 ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
 spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-monthly.csv")
@@ -156,11 +154,11 @@ cf_7cpr_wal = mbs.wal('03/29/2024', cf_7cpr)
 
 # Getting prices
 px_i      = price(cf_7cpr, i_curve, "03/29/2024", 172, "I")
-px_z      = price(cf_7cpr, z_curve, "03/29/2024", 100, "Z")
+px_z      = price(cf_7cpr, z_curve, "03/29/2024", 140, "Z")
 
 # Getting spreads
 
-i_sprd   = spread(cf_7cpr, i_curve, "03/29/2024", px_i, "I")
+z_sprd   = spread(cf_7cpr, z_curve, "03/29/2024", px_z, "Z")
 
 
 
