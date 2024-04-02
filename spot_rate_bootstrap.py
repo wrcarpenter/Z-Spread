@@ -44,7 +44,6 @@ for i in range(len(tsy)):
 ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)   # completed yields array
 
 #%%
-
 # rows, cols 
 spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]), dtype=float), columns=cols)
  
@@ -80,7 +79,7 @@ for row in range(0,spots.shape[0]):
         spots.iloc[row, col] = zero*100
 
 #%% 
-
+# interpolate spots function 
 # Converting semi-annual spots to monthly using spline interpolation
 spots_monthly = np.empty([1,361])
 months        = np.array(spots.columns.to_list())

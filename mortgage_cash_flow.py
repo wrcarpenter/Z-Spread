@@ -13,8 +13,6 @@ import datetime            # working with dates
 import calendar            # working with days 
 from pandas.tseries.offsets import DateOffset
 
-#%%
-
 # Generic methodology to create mortgage cashflows
 def cash_flow(settle, cpn, wam, term, balloon, \
                        io, delay, speed, prepay_type, bal) -> pd.DataFrame:
@@ -125,10 +123,6 @@ def wal(settle, cf) -> float:
     wal          = num/denom*1/365
          
     return wal
-
-
-
-#%%
 
 
 

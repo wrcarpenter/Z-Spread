@@ -5,18 +5,16 @@ Author: William Carpenter
 Also contains engine for I-spread (interpolated spread). 
 
 """
-# Packages/modules
-
+# Custom modules
 import mortgage_cash_flow as mbs  # custom module cash flow engine
 import bond_price as px
+# Python packages
 import datetime as dt
 from scipy.optimize import newton
 import numpy as np
 import pandas as pd
 from pandas.tseries.offsets import DateOffset
     
-#%%
-
 def price(cf, curve, settle, spread, typ) -> float:
     
     """
@@ -134,31 +132,31 @@ def duration(cf, settle, mey) -> float:
     return 0
 
 
-#%%
+# Unit Testing 
+if __name__ == "__main__":
+    # Get data
+    ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
+    spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-monthly.csv")
+    
+    # I-curve
+    i_curve = ylds.loc[ylds['Date']=='3/8/2024']
+    i_curve = i_curve.drop("Date", axis=1)
+    
+    # Z-curve
+    z_curve = spots.loc[spots['Date']=='3/8/2024']
+    z_curve = z_curve.drop("Date", axis=1)
+    
+    # Cashflows
+    cf_7cpr     = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
+    cf_7cpr_wal = mbs.wal('03/29/2024', cf_7cpr)
+    
+    # Getting prices
+    px_i      = price(cf_7cpr, i_curve, "03/29/2024", 172, "I")
+    px_z      = price(cf_7cpr, z_curve, "03/29/2024", 140, "Z")
+    
+    print(px_i)
+    print(px_z)
 
-# Get data
-ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
-spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-monthly.csv")
-
-# I-curve
-i_curve = ylds.loc[ylds['Date']=='3/8/2024']
-i_curve = i_curve.drop("Date", axis=1)
-
-# Z-curve
-z_curve = spots.loc[spots['Date']=='3/8/2024']
-z_curve = z_curve.drop("Date", axis=1)
-
-# Cashflows
-cf_7cpr     = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
-cf_7cpr_wal = mbs.wal('03/29/2024', cf_7cpr)
-
-# Getting prices
-px_i      = price(cf_7cpr, i_curve, "03/29/2024", 172, "I")
-px_z      = price(cf_7cpr, z_curve, "03/29/2024", 140, "Z")
-
-# Getting spreads
-
-z_sprd   = spread(cf_7cpr, z_curve, "03/29/2024", px_z, "Z")
 
 
 
