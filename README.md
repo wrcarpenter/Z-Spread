@@ -36,7 +36,7 @@ Below is a 3D surface plot of the Treasury data illustrating how the level of ra
 
 ### Interpolate Semi-Annual Treasury Par-Yield Rates
 
-Given usable rates data, the first step is now to create a interpolated series with semi-annual increments. Practicioners can choose between various spline methods but the two most popular are linear or spline. This project chooses to employ spline interpolation. 
+Given usable rates data, the first step is now to create a interpolated series with semi-annual increments. Practicioners can choose between various spline methods but the two most popular are linear or spline. This project employs spline interpolation. 
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Interpolated-Treasury-Curve.png)
 
@@ -51,7 +51,6 @@ Create a mortgage or corporate bond cash flow. Apply varvious prepayment assumpt
 ```Python
 def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay_type, bal)
 ```
-
 
 ### Calculate Z-Spread Given a Bond Price
 
