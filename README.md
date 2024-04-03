@@ -3,13 +3,12 @@
 # Z-Spread 
 > Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it. - Albert Einstein
 
-
-Z-Spread Code
-
-Spot Rate Bootstrap Code:
-
-Mortgage Cash Flow Engine Code:
-
+Go directly to the code files:
+| Type | Link | Description | 
+| --- | --- | --- |
+| Z-Spread | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/z_spread.py) | Method to calculate a bond's Z-spread. Also implements pricing with I-spread and calculating Macaulay duration. |
+| Spot Rate Bootstrap | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/spot_rate_bootstrap.py) | Process to take Treasury data and boostrap a spot rate curve (described in more detail below).|
+| Mortgage Cash Flows | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/mortgage_cash_flow.py)| Cash flow engine written in Python. Generates monthly mortgage cash flows at various prepayment speeds. Can also calculate a mortgage's Weighed Average Life (WAL).| 
 
 ## Introduction
 
