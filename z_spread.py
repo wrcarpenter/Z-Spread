@@ -9,7 +9,7 @@ Also contains engine for I-spread (interpolated spread).
 import mortgage_cash_flow as mbs  # custom module cash flow engine
 import bond_price as px
 # Python packages
-import datetime as dt
+import datetime
 from scipy.optimize import newton
 import numpy as np
 import pandas as pd
@@ -40,8 +40,7 @@ def price(cf, curve, settle, spread, typ) -> float:
     ------------
     Bond dollar price as a float
     
-    """
-        
+    """        
     # Cashflow characteristics given in provided dataframe 
     rate     = cf["Rate"].loc[0]
     curr     = cf["Starting Balance"].loc[0]
@@ -55,24 +54,9 @@ def price(cf, curve, settle, spread, typ) -> float:
     accrued  = (settle.to_pydatetime() - datetime.datetime(settle.year, settle.month, 1)).days
     days_pay = (pay - settle.to_pydatetime()).days
     accr_int = accrued/360*rate/100*curr
-
-    tenor = mbs.wal(settle, cf)*12
-    m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
-    
-    # Points for interpolation
-    index = m["Months"].gt(tenor).idxmax()
-    m_ub  = m["Months"].iloc[index]   
-    m_lb  = m["Months"].iloc[index-1]
-    y_ub  = curve.iloc[0,index]
-    y_lb  = curve.iloc[0,index-1]
-    # Linear interpolation
-    intrp = y_lb + (tenor - m_lb)*((y_ub - y_lb)/(m_ub - m_lb))
-    
-    # Bond equivalent yield at WAL point 
-    bey   = intrp + spread/100
-    # Monthly equivalent yield
-    mey   = 12*((1+bey/(2*100))**(2/12)-1)*100
         
+    mey  = monthly_equiv_yld(settle, cf, curve, spread)
+    
     months   = np.array((cf["Period"] - 1).astype(int))
     cf_flow  = np.array((cf["Cash Flow"]).astype(float))
     
@@ -98,7 +82,28 @@ def price(cf, curve, settle, spread, typ) -> float:
     return price
 
 
-
+def monthly_equiv_yld(settle, cf, curve, spread) -> float:
+    
+    tenor = mbs.wal(settle, cf)*12
+    m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
+    
+    # Points for interpolation
+    index = m["Months"].gt(tenor).idxmax()
+    m_ub  = m["Months"].iloc[index]   
+    m_lb  = m["Months"].iloc[index-1]
+    y_ub  = curve.iloc[0,index]
+    y_lb  = curve.iloc[0,index-1]
+    # Linear interpolation
+    intrp = y_lb + (tenor - m_lb)*((y_ub - y_lb)/(m_ub - m_lb))
+    
+    # Bond equivalent yield at WAL point 
+    bond_equiv    = intrp + spread/100
+    # Monthly equivalent yield
+    monthly_equiv = 12*((1+bond_equiv/(2*100))**(2/12)-1)*100
+    
+    return monthly_equiv
+     
+    
 def spread_solver(spread, cf, curve, settle, px, typ):
         
     """
@@ -110,13 +115,13 @@ def spread_solver(spread, cf, curve, settle, px, typ):
     return (solver - px)
 
     
-def spread(cf, curve, settle, px, typ):
+def spread(cf, curve, settle, px, typ) -> float:
     
     """
     Bond Spread
-    """
-    
+    """    
     # Solver to calculate Z-spread
+    # Constants
     s0    = 100
     miter = 1000
     
@@ -125,12 +130,15 @@ def spread(cf, curve, settle, px, typ):
     return sp
     
 
-def duration(cf, settle, mey) -> float:
+def duration(settle, cf, curve, spread) -> float:
     
-    # in progress - need to incorporate interpolation here 
+    # Solve for monthly equivalent yield
+    mey = monthly_equiv_yld(settle, cf, curve, spread)
+        
+    # Formula 
+    dur = np.sum(net_flow/((1+mey/(12*100))**(months))*1/(1+mey/100*days_to_pay/360)*cf_table[:,6] / np.sum(net_flow/((1+mey/(12*100))**(months))*1/(1+mey/100*days_to_pay/360))) 
     
-    return 0
-
+    return dur
 
 # Unit Testing 
 if __name__ == "__main__":
