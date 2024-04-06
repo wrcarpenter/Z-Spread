@@ -4,7 +4,7 @@
 > Compound interest is the eighth wonder of the world. He who understands it, earns it ... he who doesn't ... pays it. - Albert Einstein
 
 Go directly to the code files:
-| Type | Link | Description | 
+| Type | Code | Description | 
 | --- | --- | --- |
 | Z-Spread | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/z_spread.py) | Method to calculate a bond's Z-spread. Also implements pricing with I-spread and calculating Macaulay duration. |
 | Spot Rate Bootstrap | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/spot_rate_bootstrap.py) | Process to take Treasury data and boostrap a spot rate curve (described in more detail below).|
