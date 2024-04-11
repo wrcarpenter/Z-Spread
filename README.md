@@ -8,13 +8,28 @@ Go directly to the code files:
 | --- | --- | --- |
 | Z-Spread | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/z_spread.py) | Method to calculate a bond's Z-spread. Also implements pricing with I-spread and calculating Macaulay duration. |
 | Spot Rate Bootstrap | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/spot_rate_bootstrap.py) | Process to take Treasury data and boostrap a spot rate curve (described in more detail below).|
-| Mortgage Cash Flows | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/mortgage_cash_flow.py)| Cash flow engine written in Python. Generates monthly mortgage cash flows at various prepayment speeds. Can also calculate a mortgage's Weighed Average Life (WAL).| 
+| Mortgage Cash Flows | [Here](https://github.com/wrcarpenter/Z-Spread/blob/main/mortgage_cash_flow.py)| Cash flow engine written in Python. Generates monthly mortgage cash flows at various prepayment speeds. Can also calculate a mortgage's Weighted Average Life (WAL).| 
+
+## Table of Contents
+[Introduction](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#introduction)
+
+[Objectives](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#objectives)
+
+[Procedure](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#procedure)
+* [Obtain US Treasury Par Yield Data](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#obtain-us-treasury-par-yield-data)
+* [Interpolate Semi-Annual Par Yields](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#obtain-us-treasury-par-yield-data)
+* [Boostrap Semi-Annual Zero Coupon Rates](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#bootstrap-semi-annual-zero-coupon-rate-curves)
+* [Generate a Bond Cash Flow](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#generate-a-bond-cash-flow)
+* [Calculate a Bond's Z-Spread](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#calculate-z-spread-given-a-bond-price)
+
+[Bootstrapping Mathematics](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#mathematics-for-bootstrapping-zero-coupon-rates)
 
 ## Introduction
 
 In fixed income markets, investors rely on various 'spread' measurments to help provide a more informative metric of incremental yield they are receiving vs. a benchmark instrument (ex: Treasury bonds that are often considered to be 'riskless'). This spread would represent compensation for various risks in a given bond that are not in a riskless, benchmark instrument, such as: prepayment risk, credit risk, liquidity risk, etc. Spreads can be readily calculated given a bond cash flow and price and will also give investors a tool to compare relative value between bonds that could have different characteristics. This project focuses on the calculation **Z-Spread**, which assumes *zero-volatility* in cash flows and interest rates - it is considered to be a 'static' valutaion tool, but still more informative than a simple yield spread.
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/zspread-illustration.png)
+
 
 
 ## Objectives
