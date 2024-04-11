@@ -142,6 +142,7 @@ def duration(settle, cf, curve, spread) -> float:
 
 # Unit Testing 
 if __name__ == "__main__":
+    
     # Get data
     ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/ylds-semi-annual.csv")
     spots = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main/Data/spots-monthly.csv")

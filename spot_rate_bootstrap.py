@@ -43,7 +43,7 @@ def interpolate_yields(tsy, head) -> pd.DataFrame:
         add  = np.append(date, interp)
         ylds = np.vstack((ylds, add))
         
-    ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)   # completed yields array
+    ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)  
     
     return ylds
 
@@ -86,7 +86,6 @@ def spot_rate_bootstrap(ylds, tsy, head):
     
     return spots
 
-# interpolate spots function 
 # Converting semi-annual spots to monthly using spline interpolation
 def spot_rates_monthly(spots):
     
@@ -112,7 +111,6 @@ def spot_rates_monthly(spots):
     
     spots_monthly = pd.DataFrame(np.delete(spots_monthly, 0, 0), columns=months)  
 
-    # Pandas dataframe
     return spots_monthly     
       
 if __name__ == "__main__":
