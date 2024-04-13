@@ -92,7 +92,7 @@ Below is a chart that illustrates how spline interpolation compares to given Tre
 
 ## Bootstrap Semi-Annual Zero Coupon Rate Curves
 
-With semi-annual Treasury data, the next step is to perform a bootstrapping methodology to iterively solve for zero coupon yields. 
+With semi-annual Treasury data, the next step is to perform a bootstrapping methodology to iterively solve for zero coupon yields. The bond market does not provide available pricing for zero coupon bond for every month in the future for the next 20-30 years, but it is possible to infer from actively traded Treasuries. For Z-spread pricing purposes, it is important to have zero coupon bond yields rather than Treasuries because a Treasury bonds yield factors in semi-annual interest payments. For a singular cash flow in a given month $X$, the discount factor for that cashflow must also only have one payment for that month for an accurate "apples-to-apples" comparision.  
 
 ```Python
 def spot_rate_bootstrap(ylds, tsy, head) -> pd.DataFrame:
@@ -134,13 +134,13 @@ def spot_rate_bootstrap(ylds, tsy, head) -> pd.DataFrame:
     return spots
 
 ```
-
+Employing the methodology above, a spot rate curve can be created for every daily Treasury curve provided in the data. See chart below for one example of overlaying the par yield and spot curve on March 8th, 2024. 
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Spot-Curve.png)
 
 ## Generate a Bond Cash Flow 
 
-This project has a mortgage cash flow engine that can handle different payment delays, settle dates, and prepayment rate assumptions.  
+This project focuses on mortgage pricing and has its own mortgage cash flow engine that can handle different payment delays, settle dates, and prepayment rate assumptions.  
 
 ```Python
 def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay_type, bal) -> pd.DataFrame:
@@ -155,6 +155,52 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay
 Take a cashflow and price and determine the yield spread. Apply curve shifts and calculate price sensitivity. Introduce the concept of negative convexity here too. 
 
 ### Calcuate Price Given a Bond Z-Spread
+
+``` Python
+def price(cf, curve, settle, spread, typ) -> float:
+
+    # Cashflow characteristics given in provided dataframe 
+    rate     = cf["Rate"].loc[0]
+    curr     = cf["Starting Balance"].loc[0]
+    delay    = cf["Pay Delay"].loc[0]
+
+    # Handling settle dates and accrued interest 
+    settle   = pd.to_datetime(settle, format="%m/%d/%Y")
+    month    = (settle + DateOffset(months=1)).to_pydatetime() # this works 
+    pay      = datetime.datetime(month.year, month.month, delay-29)  
+
+    accrued  = (settle.to_pydatetime() - datetime.datetime(settle.year, settle.month, 1)).days
+    days_pay = (pay - settle.to_pydatetime()).days
+    accr_int = accrued/360*rate/100*curr
+        
+    mey  = monthly_equiv_yld(settle, cf, curve, spread)
+    
+    months   = np.array((cf["Period"] - 1).astype(int))
+    cf_flow  = np.array((cf["Cash Flow"]).astype(float))
+    
+    # Z-Spread calculation 
+    if typ == "Z":
+        
+        # Extract correctly sized spot curve - assume monthly cashflows
+        spots  = np.array(curve.iloc[0,0:len(cf)])
+        # Calculate z rates on each point of the spot curve
+        z_rate = spots + spread/100
+        # Calculate discount rates
+        z_zcb  = 1/((1+z_rate/(12*100))**(months))
+        # Price bond 
+        price  = (np.sum(cf_flow*z_zcb)-accr_int)*\
+                  100/curr*1/(1+mey/100*days_pay/360)
+                  
+    # I-Spread calculation 
+    elif typ == "I":
+         
+        price = (np.sum(cf_flow/((1+mey/(12*100))**(months)))\
+                  -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
+    
+    return price
+
+```
+
  
 ## Mathematical Background
 
