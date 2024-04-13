@@ -150,9 +150,13 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay
 One example of a cashflow input could be the following:
 
 ```Python
-cf_7cpr = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
+cf_7cpr = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 360, 0, 54,  7, 'CPR', 1000000)
 ```
-This is a $1,000,000 bond with a 6.5% coupon, 20-year balloon maturity, and 30-year amortization schedule. It is also assumed to prepay monthly principal at a rate of '7 CPR' which is where the variable naming comes from as well. Once this cash flow is created it is also possible to calculate its WAL (Weighted Average Life) which is important to have when determining a bond's yield when given a Z-Spread or I-Spread. The following code is used in this project to calculate WAL:
+This is a $1,000,000 bond with a 6.5% coupon, 30-year balloon maturity, and 30-year amortization schedule. It is also assumed to prepay monthly principal at a rate of '7 CPR' which is where the variable naming comes from as well. Once this cash flow is created it is also possible to calculate its WAL (Weighted Average Life) which is important to have when determining a bond's yield when given a Z-Spread or I-Spread. A visualization of this cashflow overtime would look like:
+
+![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/cash-flow-example.png)
+
+The following code is used in this project to calculate WAL:
 
 ```Python
 def wal(settle, cf) -> float:
