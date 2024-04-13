@@ -42,29 +42,112 @@ In fixed income markets, investors rely on various 'spread' measurments to help 
 ## Procedure
 This procedure follows the general methodology for how fixed income analytics providers would calculate zero coupons rates (aka the spot rate curve) with boostrapping and interpolation. 
 
-### Obtain U.S. Treasury Par-Yield Data
-To calculate a Z-spread, it is necessary to first source Treasury rate data to construct a spot rate curve from. This raw data can is publically available online here. 
+## Obtain U.S. Treasury Par-Yield Data
+To calculate a Z-spread, it is necessary to first source Treasury rate data to construct a spot rate curve from. This raw data can is publically available online [here](https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2024).
 
 Below is a 3D surface plot of the Treasury data illustrating how the level of rates and shape of the curve each day can flucuate significantly:
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Treasury-Rates-Surface.png)
 
-### Interpolate Semi-Annual Treasury Par-Yield Rates
+## Interpolate Semi-Annual Treasury Par-Yield Rates
 
-Given usable rates data, the first step is now to create a interpolated series with semi-annual increments. Practicioners can choose between various spline methods but the two most popular are linear or spline. This project employs spline interpolation. 
+Given usable rates data, the first step is now to create a interpolated series with semi-annual increments. Practicioners can choose between various spline methods but the two most popular are linear or spline. This project employs spline interpolation.
+
+```Python
+# Generate interpolated yields data
+def interpolate_yields(tsy, head) -> pd.DataFrame:
+    
+    """
+    Treasury Yields - Semi-Annual Frequency 
+    
+    Uses cubic spline interpolation.
+
+    """
+    ylds   = np.empty([1,62])
+    months = np.array([1,2,3,5,6,12,24,36,60,84,120,240,360])
+    x      = np.linspace(0,360,61)
+    
+    tsy_cols = list(tsy.columns.values)
+    cols     = list(head.columns.values)
+    
+    for i in range(len(tsy)):
+        
+        row = np.array(tsy.loc[i])
+        date = row[0:1]    
+        rates = row[1:]
+        
+        f = CubicSpline(months, rates)
+        interp = f(x)
+        
+        add  = np.append(date, interp)
+        ylds = np.vstack((ylds, add))
+        
+    ylds = pd.DataFrame(np.delete(ylds, 0, 0), columns=cols)  
+    
+    return ylds
+```
+Below is a chart that illustrates how spline interpolation compares to given Treasury Par Yields (marked as the green squares). This specifc curve is created from Treasury data on March 8th, 2024 where one can see the front-end is sharply inverted.
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Interpolated-Treasury-Curve.png)
 
-### Bootstrap Semi-Annual Zero Coupon Rate Curves
+## Bootstrap Semi-Annual Zero Coupon Rate Curves
+
+With semi-annual Treasury data, the next step is to perform a bootstrapping methodology to iterively solve for zero coupon yields. 
+
+```Python
+def spot_rate_bootstrap(ylds, tsy, head) -> pd.DataFrame:
+    
+    cols     = list(head.columns.values)
+    spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]), dtype=float), columns=cols)
+     
+    # No interpolation required here - shorter-term treasuries are ZCBs
+    spots['Date'] = tsy['Date']
+    spots['0']    = tsy['1']
+    spots['6']    = tsy['6']
+    spots['12']   = tsy['12']
+    
+    # Treasury bond assumptions for bootstrap; do not modify
+    face   = 100
+    delta  = 1/2 
+    
+    # Bootstrap methodology 
+    for row in range(0,spots.shape[0]):  
+        for col in range(0, spots.shape[1]):
+            
+            if col <= 3: continue # spot rates already defined for shorter bonds
+            
+            # Now solving for zero-coupon bond yield
+            int_cf = 0 
+            cpn    = ylds.iloc[row, col]  # interpolated coupon for par bond
+            
+            for i in range(2, col): # solve for intermediate cash flows
+                        
+                zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i-1)) 
+                int_cf = int_cf +cpn/100*delta*face*zcb
+                    
+            zero = ((face + face*cpn/100*delta)/(face - int_cf)) # algebra to solve for zero rate
+            zero = zero**(1/(col-1))
+            zero = (zero-1)*2
+            
+            spots.iloc[row, col] = zero*100
+    
+    return spots
+
+```
+
 
 ![Image](https://github.com/wrcarpenter/Z-Spread/blob/main/Images/Spot-Curve.png)
 
-### Generate a Bond Cash Flow 
+## Generate a Bond Cash Flow 
 
-Create a mortgage or corporate bond cash flow. Apply varvious prepayment assumptions. 
+This project has a mortgage cash flow engine that can handle different payment delays, settle dates, and prepayment rate assumptions.  
 
 ```Python
-def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay_type, bal)
+def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay_type, bal) -> pd.DataFrame:
+
+# returns pd dataframe with monthly mortgage cash flows
+# prepay_type is currently 'CPR' which is a conditional prepayment rate that can be converted to an SMM 
+
 ```
 
 ### Calculate Z-Spread Given a Bond Price
@@ -73,7 +156,9 @@ Take a cashflow and price and determine the yield spread. Apply curve shifts and
 
 ### Calcuate Price Given a Bond Z-Spread
  
-## Mathematics for Bootstrapping Zero Coupon Rates
+## Mathematical Background
+
+### Bootstrapping Zero Coupon Rates
 
 The following sections cover the mathematics behind Tresaury bond pricing and how to utlize market data to boostrap a spot rate curve. These calculations are all implemented in the code for this project.
 
