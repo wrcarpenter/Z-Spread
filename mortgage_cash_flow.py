@@ -1,5 +1,6 @@
 """
 Mortgage Cash Flow Pricing - Engine
+
 Author: William Carpenter
 
 """
@@ -90,6 +91,7 @@ def cash_flow(settle, cpn, wam, term, balloon, \
         wal = (principal + prepay)*days_from_settle/orig_bal*1/365 + wal
         wam = wam - 1
         
+        # adding to table
         table.iloc[i-1,3] = cpn 
         table.iloc[i-1,4] = delay 
         table.iloc[i-1,5] = interest

@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 from scipy.interpolate import CubicSpline
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator, MaxNLocator
-
-# Additioanl imports for charting
+# Additional imports for charting
 from matplotlib.colors import LightSource
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D
@@ -31,11 +30,37 @@ ylds  = pd.read_csv("https://raw.githubusercontent.com/wrcarpenter/Z-Spread/main
 tsy_cols = list(tsy.columns.values)
 cols     = list(head.columns.values)
 
-#%%
 from matplotlib.colors import LightSource
 from datetime import datetime
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.dates import DateFormatter
+import mortgage_cash_flow as mbs  # custom module cash flow engine
+
+
+def cash_flow_plot(cf, w, l, name):
+    
+    x1 = np.array(cf['Period'])
+    y1 = np.array(cf['Cash Flow'])
+    y2 = np.array(cf['Interest'])
+    
+    fig,ax = plt.subplots(figsize=(w, l))
+    ax.set_xticks(np.arange(0, len(x1)+30, 30))
+    ax.set_yticks(np.arange(0, cf["Cash Flow"].max()+200, round(cf["Cash Flow"].max()/10, -3)))
+    
+    ax.set_ylabel('Dollars ($)', fontsize="large")
+    ax.set_xlabel('Months', fontsize="large")
+    ax.set_title(name)
+    
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    
+    fig.patch.set_facecolor('gainsboro')
+    
+    plt.plot(x1,y1, label="Total Cash Flow", color='blue')
+    plt.plot(x1, y2, label="Interest", color='green')
+    plt.legend(loc='upper right', fontsize='medium') 
+    
+
 
 def tsy_rate_plot():
     
@@ -61,7 +86,7 @@ def tsy_rate_plot():
     plt.legend(loc='upper right', fontsize='large')            
 
 # Plot interpolated treasury yields
-def interp_tsy_yld_plot():            
+def interp_tsy_yld_plot(ylds, tsy_cols, w, l):            
     
     # Define data
     x1 = np.array(tsy_cols[5:])
@@ -77,7 +102,7 @@ def interp_tsy_yld_plot():
     y3 = y3[5:]
     
     # Create plot/axis with sizing
-    fig, ax = plt.subplots(figsize=(11, 5))
+    fig, ax = plt.subplots(figsize=(w, l))
     
     fig.patch.set_facecolor('gainsboro')
     
@@ -100,7 +125,7 @@ def interp_tsy_yld_plot():
     # Add legend
     plt.legend(loc='upper right', fontsize='large')
     
-def spot_rate_curve():
+def spot_rate_curve(ylds, tsy_cols, spots, w, l):
     
     x1 = np.array(tsy_cols[5:])
     x1 = x1.astype(float)
@@ -112,7 +137,7 @@ def spot_rate_curve():
     y3 = np.array(spots.loc[1])
     y3 = y3[2:]
     
-    fig, ax = plt.subplots(figsize=(11, 5))
+    fig, ax = plt.subplots(figsize=(w, l))
     
     # Background plot color
     fig.patch.set_facecolor('gainsboro')
@@ -141,8 +166,7 @@ def spot_rate_curve():
 #def z_spread_visual():
     # use the arrow function in matplotlib 
 
-
-def tsy_rate_surface(elevation, azimuthal):
+def tsy_rate_surface(tsy, elevation, azimuthal, w, l):
     
     tsy['Date'] = pd.to_datetime(tsy['Date'], format='%m/%d/%Y')
        
@@ -160,7 +184,7 @@ def tsy_rate_surface(elevation, azimuthal):
     X, Y = np.meshgrid(x, y)
     Z = z.T
     
-    fig = plt.figure(figsize=(12, 15))
+    fig = plt.figure(figsize=(w, l))  # old fig size was 12/15
     ax = fig.add_subplot(111, projection='3d')
     
     start_date = min(x)
@@ -190,11 +214,9 @@ def tsy_rate_surface(elevation, azimuthal):
     surf = ax.plot_surface(X,Y,Z, cmap='plasma',
                        linewidth=0, antialiased=False)
 
-#%%
-# Generate plots 
-tsy_rates  = tsy_rate_plot()
-tsy_interp = interp_tsy_yld_plot()
-spot_curve = spot_rate_curve()
-surf1      = tsy_rate_surface(40, 50)
-surf2      = tsy_rate_surface(40, 110)
 
+if __name__ == "__main__":
+    
+    cf_7cpr = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 360, 0, 54,  7, 'CPR', 1000000)
+    cash_flow_plot(cf_7cpr, 10, 5, "6.5% Mortgage Bond Cash Flow at 7 CPR")
+    

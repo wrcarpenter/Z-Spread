@@ -48,7 +48,7 @@ def interpolate_yields(tsy, head) -> pd.DataFrame:
     return ylds
 
     
-def spot_rate_bootstrap(ylds, tsy, head):
+def spot_rate_bootstrap(ylds, tsy, head) -> pd.DataFrame:
     
     cols     = list(head.columns.values)
     spots = pd.DataFrame(np.zeros((ylds.shape[0], ylds.shape[1]), dtype=float), columns=cols)
@@ -67,7 +67,7 @@ def spot_rate_bootstrap(ylds, tsy, head):
     for row in range(0,spots.shape[0]):  
         for col in range(0, spots.shape[1]):
             
-            if col <= 3: continue # spot rates already defined 
+            if col <= 3: continue # spot rates already defined for shorter bonds
             
             # Now solving for zero-coupon bond yield
             int_cf = 0 
@@ -75,7 +75,7 @@ def spot_rate_bootstrap(ylds, tsy, head):
             
             for i in range(2, col): # solve for intermediate cash flows
                         
-                zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i-1))
+                zcb    = 1/((1+spots.iloc[row, i]/100*delta)**(i-1)) 
                 int_cf = int_cf +cpn/100*delta*face*zcb
                     
             zero = ((face + face*cpn/100*delta)/(face - int_cf)) # algebra to solve for zero rate
