@@ -22,7 +22,7 @@ Go directly to the code files:
 * [Generate a Bond Cash Flow](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#generate-a-bond-cash-flow)
 * [Calculate a Bond's Z-Spread](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#calculate-z-spread-given-a-bond-price)
 
-[Bootstrapping Mathematics](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#mathematics-for-bootstrapping-zero-coupon-rates)
+[Fixed Income Mathematics Background](https://github.com/wrcarpenter/Z-Spread?tab=readme-ov-file#mathematics-for-bootstrapping-zero-coupon-rates)
 
 ## Introduction
 
@@ -149,8 +149,35 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay
 # prepay_type is currently 'CPR' which is a conditional prepayment rate that can be converted to an SMM 
 
 ```
+One example of a cashflow input could be the following:
 
-## Calcuate Price Given a Bond Z-Spread
+```Python
+cf_7cpr = mbs.cash_flow('03/29/2024', 6.50, 360, 360, 240, 0, 54,  7, 'CPR', 1000000)
+```
+This is a $1,000,000 bond with a 6.5% coupon, 20-year balloon maturity, and 30-year amortization schedule. It is also assumed to prepay monthly principal at a rate of '7 CPR' which is where the variable naming comes from as well. Once this cash flow is created it is also possible to calculate its WAL (Weighted Average Life) which is important to have when determining a bond's yield when given a Z-Spread or I-Spread. The following code is used in this project to calculate WAL:
+
+```Python
+def wal(settle, cf) -> float:
+    
+    '''
+    Calculate weighted-average-life of a mortgage cash flow.
+    '''
+    arr = cf
+    
+    settle       = pd.to_datetime(settle, format="%m/%d/%Y")
+    arr['settle'] = settle
+    arr['diff']   = (pd.to_datetime(arr['Date']) - arr['settle']).dt.days
+    
+    num          = (arr['diff']*((arr['Scheduled Principal'] + arr['Unscheduled Principal']))).sum()
+    denom        = (arr['Scheduled Principal'] + arr['Unscheduled Principal']).sum()          
+    wal          = num/denom*1/365
+         
+    return wal
+```
+
+## Calculate Price Given a Bond Z-Spread
+
+Given a defined security cashflow and spread, it is possible to calculate a yield and Z-spread for the security. The following is the pricing engine that can calculate both Z-Spread and I-spread:
 
 ``` Python
 def price(cf, curve, settle, spread, typ) -> float:
@@ -195,7 +222,7 @@ def price(cf, curve, settle, spread, typ) -> float:
     
     return price
 ```
-Monthly equivalent yield calculation.
+In order for the pricing engine to function above, a monthly equivalent yield (MEY) must be calculated that involves first calculating a bond's weighted average life and interpolating a yield at that point. Below is the helper function for MEY that assists the pricing engine:
 
 ```Python
 
@@ -224,12 +251,41 @@ def monthly_equiv_yld(settle, cf, curve, spread) -> float:
 
 ## Calculate Z-Spread Given a Bond Price
 
-Take a cashflow and price and determine the yield spread. Apply curve shifts and calculate price sensitivity. Introduce the concept of negative convexity here too. 
+Calculating spread given a bond price involves using the pricing engine with a root finding algorithm. In short, the function given is $Solver - Price = 0$ where the $Price$ is given and the $Solver$ is the pricing function that iteraively tests different spread values until the fucntion finally equals zero. The following is the code that employs this method using the projects pricing engine:
 
+```Python
+def spread_solver(spread, cf, curve, settle, px, typ):
+        
+    """
+    Newton Root Finding Function - Solving for bond spread
+    """
+    
+    solver = price(cf, curve, settle, spread, typ)  # using a spread to solve for spread   
+    
+    return (solver - px)
+
+    
+def spread(cf, curve, settle, px, typ) -> float:
+    
+    """
+    Bond Spread
+    """    
+    # Solver to calculate Z-spread
+    # Constants
+    s0    = 100
+    miter = 1000
+    
+    sp = newton(spread_solver, s0, args=(cf, curve, settle, px, typ), maxiter=miter)
+    
+    return sp
+```
+While this project focuses primarily on Z-Spread and the methodology behind it, the code above can also solve for I-Spread ('interpolated' yield spread). 
  
 ## Mathematical Background
 
-### Bootstrapping Zero Coupon Rates
+For those interested, the final part of this project provides an overview of the fixed income mathematics used for calculations in the code.
+
+## Bootstrapping Zero Coupon Rates
 
 The following sections cover the mathematics behind Tresaury bond pricing and how to utlize market data to boostrap a spot rate curve. These calculations are all implemented in the code for this project.
 
@@ -256,6 +312,8 @@ This equation above can be more elegantly written as:
 P = \sum_{i=1}^{n-1}\frac{\frac{C}{\Delta}*F}{(1+\frac{r_i}{\Delta})^{i}} +  \frac{F + \frac{C}{\Delta}*F}{(1+\frac{r_n}{\Delta})^{n}}
 ```
 This equation is quintessential example of discounted cashflow pricing, which is the foundation for the bond market and illustrates the concept of 'present value.' Diving into the cashflows first, one can see thatin each period before the bond matures at time $n$ a bond holder would receive an intermediate interest payment of $\frac{C}{\Delta}*F$ which adjusts the coupon if the payments are not necessarily annual. In the case of Treasury bonds, payments are semi-annual.
+
+## Solving for a Mortgage Bond Price
 
 
 
