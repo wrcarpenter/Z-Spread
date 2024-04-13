@@ -150,11 +150,7 @@ def mortgage_cash_flow(settle, cpn, wam, term, balloon, io, delay, speed, prepay
 
 ```
 
-### Calculate Z-Spread Given a Bond Price
-
-Take a cashflow and price and determine the yield spread. Apply curve shifts and calculate price sensitivity. Introduce the concept of negative convexity here too. 
-
-### Calcuate Price Given a Bond Z-Spread
+## Calcuate Price Given a Bond Z-Spread
 
 ``` Python
 def price(cf, curve, settle, spread, typ) -> float:
@@ -198,8 +194,37 @@ def price(cf, curve, settle, spread, typ) -> float:
                   -accr_int)*100/curr*1/(1+mey/100*days_pay/360)
     
     return price
+```
+Monthly equivalent yield calculation.
+
+```Python
+
+def monthly_equiv_yld(settle, cf, curve, spread) -> float:
+    
+    tenor = mbs.wal(settle, cf)*12
+    m     = pd.DataFrame(curve.columns.values.astype(int), columns=["Months"])
+    
+    # Points for interpolation
+    index = m["Months"].gt(tenor).idxmax()
+    m_ub  = m["Months"].iloc[index]   
+    m_lb  = m["Months"].iloc[index-1]
+    y_ub  = curve.iloc[0,index]
+    y_lb  = curve.iloc[0,index-1]
+    # Linear interpolation
+    intrp = y_lb + (tenor - m_lb)*((y_ub - y_lb)/(m_ub - m_lb))
+    
+    # Bond equivalent yield at WAL point 
+    bond_equiv    = intrp + spread/100
+    # Monthly equivalent yield
+    monthly_equiv = 12*((1+bond_equiv/(2*100))**(2/12)-1)*100
+    
+    return monthly_equiv
 
 ```
+
+## Calculate Z-Spread Given a Bond Price
+
+Take a cashflow and price and determine the yield spread. Apply curve shifts and calculate price sensitivity. Introduce the concept of negative convexity here too. 
 
  
 ## Mathematical Background
